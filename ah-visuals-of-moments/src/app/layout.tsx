@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Cormorant_Garamond } from "next/font/google";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/config/site";
 import "./globals.css";
 
@@ -43,13 +42,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${cormorant.variable}`}>
-      <body className="bg-[#0f0f11] text-[#f5f4f0] antialiased min-h-screen flex flex-col font-sans">
-        <SiteHeader />
-        <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          {children}
-        </main>
-        <SiteFooter />
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${inter.variable} ${cormorant.variable}`}
+    >
+      <body className="antialiased min-h-screen flex flex-col font-sans bg-[var(--bg-primary)] text-[var(--text-primary)]">
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

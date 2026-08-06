@@ -17,19 +17,20 @@ export default function MomentCard({
   dictionary,
 }: MomentCardProps) {
   const momentUrl = getLocalizedUrl(`/moments/${moment.slug}`, locale);
+  const cardImg = moment.cardImage || moment.mainImage;
 
   return (
     <article className="group bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-sm overflow-hidden hover:border-[var(--border-highlight)] transition-all flex flex-col h-full">
       <Link
         href={momentUrl}
-        className="block relative w-full aspect-[3/2] bg-[var(--bg-elevated)] overflow-hidden"
+        className="block relative w-full aspect-[4/3] bg-[var(--bg-elevated)] overflow-hidden"
       >
         <Image
-          src={moment.mainImage.src}
-          alt={moment.mainImage.alt}
+          src={cardImg.src}
+          alt={cardImg.alt}
           fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover group-hover:scale-105 transition-transform duration-500"
-          unoptimized
         />
       </Link>
       <div className="p-6 flex flex-col flex-1">

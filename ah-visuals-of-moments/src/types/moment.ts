@@ -55,6 +55,9 @@ export interface RawMoment {
   dateLabel: Record<Locale, string>;
   location: LocationData;
   mainImage: ImageAsset;
+  heroImage?: ImageAsset;
+  cardImage?: ImageAsset;
+  gallery?: ImageAsset[];
   mockups: ProductMockup[];
   availableColors: TShirtColor[];
   availableSizes: TShirtSize[];
@@ -87,6 +90,27 @@ export interface Moment {
     width?: number;
     height?: number;
   };
+  heroImage?: {
+    id: string;
+    src: string;
+    alt: string;
+    width?: number;
+    height?: number;
+  };
+  cardImage?: {
+    id: string;
+    src: string;
+    alt: string;
+    width?: number;
+    height?: number;
+  };
+  gallery?: Array<{
+    id: string;
+    src: string;
+    alt: string;
+    width?: number;
+    height?: number;
+  }>;
   mockups: Array<{
     id: string;
     image: {

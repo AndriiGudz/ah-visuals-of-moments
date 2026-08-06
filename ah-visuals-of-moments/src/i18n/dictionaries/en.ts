@@ -33,6 +33,7 @@ export const en = {
   },
   story: {
     originalPhoto: "Original Photograph",
+    gallery: "Story Gallery",
     storyBehind: "Story behind the photograph",
     physicalDesign: "Physical T-Shirt Design",
     unisexSubtitle: "Unisex T-shirt carrying this photographed moment.",

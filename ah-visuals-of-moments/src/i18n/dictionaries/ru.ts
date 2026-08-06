@@ -35,6 +35,7 @@ export const ru: Dictionary = {
   },
   story: {
     originalPhoto: "Оригинальная фотография",
+    gallery: "Галерея кадров",
     storyBehind: "История создания снимка",
     physicalDesign: "Дизайн футболки",
     unisexSubtitle: "Унисекс-футболка с принтом этого снимка.",

@@ -62,6 +62,12 @@ export async function generateMetadata({
       description,
       url: `${SITE_URL}/${typedLocale}/moments/${slug}`,
       type: "article",
+      images: [
+        {
+          url: moment.heroImage?.src || moment.mainImage.src,
+          alt: moment.heroImage?.alt || moment.mainImage.alt,
+        },
+      ],
     },
   };
 }
@@ -80,6 +86,8 @@ export default async function MomentStoryPage({ params }: StoryPageProps) {
   if (!moment) {
     notFound();
   }
+
+  const heroImage = moment.heroImage || moment.mainImage;
 
   return (
     <article className="py-6 space-y-12 max-w-4xl mx-auto">
@@ -113,19 +121,19 @@ export default async function MomentStoryPage({ params }: StoryPageProps) {
         )}
       </header>
 
-      {/* Main Photograph */}
+      {/* Main Photograph / Hero Image */}
       <section className="space-y-3">
         <h2 className="text-xs uppercase tracking-widest text-[var(--text-secondary)] font-mono">
           {dictionary.story.originalPhoto}
         </h2>
-        <div className="relative w-full aspect-[3/2] bg-[var(--bg-surface)] rounded-sm overflow-hidden border border-[var(--border-subtle)]">
+        <div className="relative w-full aspect-[4/3] bg-[var(--bg-surface)] rounded-sm overflow-hidden border border-[var(--border-subtle)]">
           <Image
-            src={moment.mainImage.src}
-            alt={moment.mainImage.alt}
+            src={heroImage.src}
+            alt={heroImage.alt}
             fill
+            sizes="(max-width: 896px) 100vw, 896px"
             className="object-cover"
             priority
-            unoptimized
           />
         </div>
       </section>
@@ -135,12 +143,39 @@ export default async function MomentStoryPage({ params }: StoryPageProps) {
         <h2 className="text-xs uppercase tracking-widest text-[var(--accent-warm)] font-mono">
           {dictionary.story.storyBehind}
         </h2>
-        <div className="text-base sm:text-lg text-[var(--text-primary)] leading-relaxed space-y-4 font-light whitespace-pre-line">
-          {moment.story}
+        <div className="text-base sm:text-lg text-[var(--text-primary)] leading-relaxed space-y-4 font-light">
+          {moment.story.split("\n\n").map((paragraph, index) => (
+            <p key={index}>{paragraph}</p>
+          ))}
         </div>
       </section>
 
-      {/* T-Shirt Mockups */}
+      {/* Additional Gallery Section */}
+      {moment.gallery && moment.gallery.length > 0 && (
+        <section className="space-y-4 py-4 border-t border-[var(--border-subtle)]">
+          <h2 className="text-xs uppercase tracking-widest text-[var(--text-secondary)] font-mono">
+            {dictionary.story.gallery}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {moment.gallery.map((img) => (
+              <div
+                key={img.id}
+                className="relative aspect-[4/3] bg-[var(--bg-surface)] rounded-sm overflow-hidden border border-[var(--border-subtle)]"
+              >
+                <Image
+                  src={img.src}
+                  alt={img.alt}
+                  fill
+                  sizes="(max-width: 640px) 100vw, 448px"
+                  className="object-cover hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* T-Shirt Mockups / Physical Design */}
       <section className="space-y-6 pt-6 border-t border-[var(--border-subtle)]">
         <div className="space-y-1">
           <h2 className="text-xl font-medium text-[var(--text-primary)]">
@@ -152,19 +187,19 @@ export default async function MomentStoryPage({ params }: StoryPageProps) {
         </div>
 
         {moment.mockups.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             {moment.mockups.map((mockup) => (
               <div
                 key={mockup.id}
                 className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-sm overflow-hidden p-4 space-y-3"
               >
-                <div className="relative aspect-[4/5] bg-[var(--bg-elevated)] rounded-sm overflow-hidden">
+                <div className="relative aspect-[5/4] bg-[var(--bg-elevated)] rounded-sm overflow-hidden">
                   <Image
                     src={mockup.image.src}
                     alt={mockup.image.alt}
                     fill
+                    sizes="(max-width: 896px) 100vw, 896px"
                     className="object-cover"
-                    unoptimized
                   />
                 </div>
                 {mockup.color && (

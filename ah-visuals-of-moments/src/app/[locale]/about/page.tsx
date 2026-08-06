@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { isValidLocale, Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
-import { SITE_URL } from "@/config/site";
+import { SITE_URL, ROBOTS_METADATA } from "@/config/site";
 
 interface AboutPageProps {
   params: Promise<{
@@ -21,6 +21,7 @@ export async function generateMetadata({
   return {
     title: dict.about.title,
     description: dict.about.lead,
+    robots: ROBOTS_METADATA,
     alternates: {
       canonical: `${SITE_URL}/${locale}/about`,
       languages: {

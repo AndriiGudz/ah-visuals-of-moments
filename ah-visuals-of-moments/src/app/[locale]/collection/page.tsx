@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { isValidLocale, Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
 import { getPublishedMoments } from "@/data/moments";
-import { SITE_URL } from "@/config/site";
+import { SITE_URL, ROBOTS_METADATA } from "@/config/site";
 import MomentGrid from "@/components/MomentGrid";
 
 interface CollectionPageProps {
@@ -23,6 +23,7 @@ export async function generateMetadata({
   return {
     title: dict.collection.title,
     description: dict.collection.description,
+    robots: ROBOTS_METADATA,
     alternates: {
       canonical: `${SITE_URL}/${locale}/collection`,
       languages: {

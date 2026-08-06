@@ -5,7 +5,7 @@ import { isValidLocale, Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
 import { getPublishedMoments } from "@/data/moments";
 import { getLocalizedUrl } from "@/utils/url";
-import { SITE_URL } from "@/config/site";
+import { SITE_URL, ROBOTS_METADATA } from "@/config/site";
 import MomentGrid from "@/components/MomentGrid";
 
 interface HomePageProps {
@@ -25,6 +25,7 @@ export async function generateMetadata({
   return {
     title: dict.hero.title,
     description: dict.hero.description,
+    robots: ROBOTS_METADATA,
     alternates: {
       canonical: `${SITE_URL}/${locale}`,
       languages: {

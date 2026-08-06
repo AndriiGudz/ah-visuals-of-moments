@@ -85,8 +85,12 @@ src/i18n/
 Создайте файл `.env.local` на основе `.env.example`:
 ```env
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_ALLOW_INDEXING=false
 ```
-В production укажите домен проекта (например, `https://ahvisuals.com`).
+- `NEXT_PUBLIC_SITE_URL` — базовый URL сайта в production (например, `https://ahvisuals.com`).
+- `NEXT_PUBLIC_ALLOW_INDEXING` — управляет индексацией поисковыми системами:
+  - `false` (по умолчанию) — закрывает весь сайт от индексации (метатег `noindex, nofollow`, `robots.txt` с `Disallow: /` и заголовок `X-Robots-Tag: noindex, nofollow, noarchive`). На тестовом этапе деплоя sitemap в `robots.txt` не указывается.
+  - `true` — разрешает индексацию, убирает блокирующие заголовки и включает ссылку на `sitemap.xml` в `robots.txt`.
 
 ---
 

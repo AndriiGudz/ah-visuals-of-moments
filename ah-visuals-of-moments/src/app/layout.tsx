@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Cormorant_Garamond } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/config/site";
+import { SITE_NAME, SITE_DESCRIPTION, SITE_URL, ROBOTS_METADATA } from "@/config/site";
 import "./globals.css";
 
 const inter = Inter({
@@ -30,10 +30,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     type: "website",
   },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  robots: ROBOTS_METADATA,
 };
 
 export default function RootLayout({

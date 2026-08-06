@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { locales, isValidLocale, Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
 import { getMomentBySlug, getPublishedMoments } from "@/data/moments";
-import { SITE_URL } from "@/config/site";
+import { SITE_URL, ROBOTS_METADATA } from "@/config/site";
 import { QrCodeTrigger } from "@/components/qr/QrCodeTrigger";
 
 interface StoryPageProps {
@@ -42,6 +42,7 @@ export async function generateMetadata({
   if (!moment) {
     return {
       title: "Moment Not Found",
+      robots: ROBOTS_METADATA,
     };
   }
 
@@ -51,6 +52,7 @@ export async function generateMetadata({
   return {
     title,
     description,
+    robots: ROBOTS_METADATA,
     alternates: {
       canonical: `${SITE_URL}/${typedLocale}/moments/${slug}`,
       languages: {

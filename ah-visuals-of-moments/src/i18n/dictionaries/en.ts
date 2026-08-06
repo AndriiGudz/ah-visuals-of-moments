@@ -74,10 +74,25 @@ export const en = {
   },
   notFound: {
     badge: "404 • Page Not Found",
-    title: "Moment Not Available",
+    title: "Page Not Found",
     description:
-      "The requested moment or page does not exist or has not been published yet.",
+      "The requested page or story does not exist, has been moved, or has not been published yet.",
     button: "Return to Collection",
+    homeButton: "Go to Home",
+    seoTitle: "404 — Page Not Found | AH Visuals of Moments",
+  },
+  qr: {
+    viewQr: "View QR code",
+    modalTitle: "Story QR Code",
+    modalDescription:
+      "Permanent QR code encoded for print products and physical T-shirts.",
+    encodedUrlLabel: "Encoded Permanent Link",
+    downloadPng: "Download PNG",
+    downloadSvg: "Download SVG",
+    close: "Close",
+    localhostWarningTitle: "Development Warning",
+    localhostWarning:
+      "SITE_URL is currently pointing to localhost. Do not use this generated QR code for final print production.",
   },
   languageSwitcher: {
     ariaLabel: "Select language",

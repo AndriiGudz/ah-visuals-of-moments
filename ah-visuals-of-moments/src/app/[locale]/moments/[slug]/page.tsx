@@ -5,6 +5,7 @@ import { locales, isValidLocale, Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
 import { getMomentBySlug, getPublishedMoments } from "@/data/moments";
 import { SITE_URL } from "@/config/site";
+import { QrCodeTrigger } from "@/components/qr/QrCodeTrigger";
 
 interface StoryPageProps {
   params: Promise<{
@@ -278,19 +279,26 @@ export default async function MomentStoryPage({ params }: StoryPageProps) {
           {dictionary.story.futureIntegrations}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-[var(--text-secondary)]">
-          <div className="bg-[var(--bg-elevated)] p-4 rounded-sm border border-[var(--border-subtle)] space-y-1">
-            <span className="font-semibold text-[var(--text-primary)] block">
-              {dictionary.story.permanentQr}
-            </span>
-            <p>
-              Route:{" "}
-              <code className="text-[var(--accent-warm)] font-mono">
-                {moment.qrPath}
-              </code>
-            </p>
-            <p className="text-[10px] text-[var(--text-muted)]">
-              {dictionary.story.qrDesc}
-            </p>
+          <div className="bg-[var(--bg-elevated)] p-4 rounded-sm border border-[var(--border-subtle)] space-y-3 flex flex-col justify-between">
+            <div className="space-y-1">
+              <span className="font-semibold text-[var(--text-primary)] block">
+                {dictionary.story.permanentQr}
+              </span>
+              <p className="text-xs text-[var(--text-secondary)]">
+                Route:{" "}
+                <code className="text-[var(--accent-warm)] font-mono">
+                  /moments/{moment.slug}
+                </code>
+              </p>
+            </div>
+            <div>
+              <QrCodeTrigger
+                momentTitle={moment.title}
+                momentSlug={moment.slug}
+                siteUrl={SITE_URL}
+                dictionary={dictionary.qr}
+              />
+            </div>
           </div>
 
           <div className="bg-[var(--bg-elevated)] p-4 rounded-sm border border-[var(--border-subtle)] space-y-1">

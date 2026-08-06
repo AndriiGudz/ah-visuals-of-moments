@@ -22,7 +22,7 @@ export function middleware(request: NextRequest) {
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
 
-  if (pathnameHasLocale) {
+  if (pathnameHasLocale || pathname.startsWith("/moments/")) {
     return NextResponse.next();
   }
 

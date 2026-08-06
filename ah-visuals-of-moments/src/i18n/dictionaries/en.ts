@@ -7,6 +7,7 @@ export const en = {
   footer: {
     brandSubtitle: "Stories behind photographs and physical moments.",
     rights: "All rights reserved.",
+    createdBy: "Design & Development by",
   },
   hero: {
     title: "AH Visuals of Moments",
@@ -79,8 +80,8 @@ export const en = {
   },
   languageSwitcher: {
     ariaLabel: "Select language",
-    en: "EN",
-    ru: "RU",
+    en: "English",
+    ru: "Русский",
   },
   themeSwitcher: {
     ariaLabel: "Select theme",

@@ -9,6 +9,7 @@ export const ru: Dictionary = {
   footer: {
     brandSubtitle: "Истории снимков и физических моментов.",
     rights: "Все права защищены.",
+    createdBy: "Дизайн и разработка:",
   },
   hero: {
     title: "AH Visuals of Moments",
@@ -81,8 +82,8 @@ export const ru: Dictionary = {
   },
   languageSwitcher: {
     ariaLabel: "Выберите язык",
-    en: "EN",
-    ru: "RU",
+    en: "English",
+    ru: "Русский",
   },
   themeSwitcher: {
     ariaLabel: "Выберите тему",

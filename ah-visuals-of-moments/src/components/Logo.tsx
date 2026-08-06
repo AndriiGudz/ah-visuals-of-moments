@@ -8,6 +8,7 @@ import { Locale } from "@/i18n/config";
 
 interface LogoProps {
   locale: Locale;
+  centered?: boolean;
 }
 
 const emptySubscribe = () => () => {};
@@ -20,7 +21,7 @@ function useIsMounted() {
   );
 }
 
-export default function Logo({ locale }: LogoProps) {
+export default function Logo({ locale, centered = false }: LogoProps) {
   const { resolvedTheme } = useTheme();
   const mounted = useIsMounted();
 
@@ -32,7 +33,9 @@ export default function Logo({ locale }: LogoProps) {
   return (
     <Link
       href={`/${locale}`}
-      className="inline-flex items-center shrink-0 group transition-opacity hover:opacity-90 focus:outline-hidden focus:ring-1 focus:ring-[var(--accent-warm)] rounded-sm py-1"
+      className={`inline-flex items-center shrink-0 group transition-opacity hover:opacity-90 focus:outline-hidden focus:ring-1 focus:ring-[var(--accent-warm)] rounded-sm py-1 ${
+        centered ? "justify-center" : ""
+      }`}
       aria-label="AH Visuals of Moments - Home"
     >
       <div className="relative h-20 w-20 sm:h-24 sm:w-24 overflow-hidden">
@@ -41,7 +44,9 @@ export default function Logo({ locale }: LogoProps) {
           alt="AH Visuals of Moments"
           fill
           sizes="(max-width: 640px) 80px, 96px"
-          className="object-contain object-left"
+          className={`object-contain ${
+            centered ? "object-center" : "object-left"
+          }`}
           priority
           unoptimized
         />

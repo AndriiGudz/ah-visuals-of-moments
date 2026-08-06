@@ -42,10 +42,8 @@ export function middleware(request: NextRequest) {
   }
 
   // Build redirect URL
-  const redirectUrl = new URL(
-    `/${targetLocale}${pathname.startsWith("/") ? pathname : `/${pathname}`}`,
-    request.url
-  );
+  const targetPath = pathname === "/" ? "" : pathname.startsWith("/") ? pathname : `/${pathname}`;
+  const redirectUrl = new URL(`/${targetLocale}${targetPath}`, request.url);
 
   return NextResponse.redirect(redirectUrl);
 }

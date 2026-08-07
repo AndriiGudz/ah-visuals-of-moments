@@ -1,0 +1,7 @@
+[build]
+  base = "ah-visuals-of-moments"
+  command = "npm run build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

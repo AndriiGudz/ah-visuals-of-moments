@@ -1,3 +1,13 @@
+if (process.env.RUN_HOSTED_INTEGRATION_TESTS === "true") {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { loadEnvConfig } = require("@next/env");
+  loadEnvConfig(process.cwd());
+} else {
+  delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+  delete process.env.SUPABASE_SECRET_KEY;
+  (process.env as Record<string, string | undefined>).NODE_ENV = "test";
+}
+
 import {
   fetchInventory,
   createOrderWithReservation,

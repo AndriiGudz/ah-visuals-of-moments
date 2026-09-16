@@ -84,56 +84,149 @@ interface MockState {
   googleIntegrations: GoogleIntegration[];
 }
 
-// Initial mock data matching supabase/seed.sql
+// Initial mock data matching target production catalog Summer 2019 + 48 variants (zero stock)
+// plus legacy test variant AH-M01-BLK-M for isolated business logic tests.
+const mockCollections: Collection[] = [
+  {
+    id: "col-summer-2019",
+    name: "Summer 2019",
+    slug: "summer-2019",
+    type: "REGULAR",
+    active: true,
+    created_at: "2026-08-01T10:00:00.000Z",
+    updated_at: "2026-08-01T10:00:00.000Z",
+  },
+];
+
+const mockProducts: Product[] = [
+  {
+    id: "prod-mom-001",
+    product_code: "MOM-001",
+    name: "Moment 001",
+    slug: "moment-001",
+    description: "Лимитированная унисекс-футболка AH Visuals of Moments из коллекции Summer 2019.",
+    price: 50.0,
+    collection_id: "col-summer-2019",
+    active: true,
+    created_at: "2026-08-01T10:00:00.000Z",
+    updated_at: "2026-08-01T10:00:00.000Z",
+  },
+  {
+    id: "prod-mom-002",
+    product_code: "MOM-002",
+    name: "Moment 002",
+    slug: "moment-002",
+    description: "Лимитированная унисекс-футболка AH Visuals of Moments из коллекции Summer 2019.",
+    price: 50.0,
+    collection_id: "col-summer-2019",
+    active: true,
+    created_at: "2026-08-01T10:00:00.000Z",
+    updated_at: "2026-08-01T10:00:00.000Z",
+  },
+  {
+    id: "prod-mom-003",
+    product_code: "MOM-003",
+    name: "Moment 003",
+    slug: "moment-003",
+    description: "Лимитированная унисекс-футболка AH Visuals of Moments из коллекции Summer 2019.",
+    price: 50.0,
+    collection_id: "col-summer-2019",
+    active: true,
+    created_at: "2026-08-01T10:00:00.000Z",
+    updated_at: "2026-08-01T10:00:00.000Z",
+  },
+  {
+    id: "prod-legacy",
+    product_code: "MOM-LEGACY",
+    name: "Legacy Mock Product",
+    slug: "legacy-mock-product",
+    description: "Тестовый товар для юнит-тестов бизнес-логики складов.",
+    price: 85.0,
+    collection_id: "col-summer-2019",
+    active: true,
+    created_at: "2026-08-01T10:00:00.000Z",
+    updated_at: "2026-08-01T10:00:00.000Z",
+  },
+];
+
+const mockVariants: ProductVariant[] = [];
+const mockInventory: InventoryRecord[] = [];
+
+const TARGET_COLORS_DEF = [
+  { code: "BLK", name: "Deep Black" },
+  { code: "TPE", name: "Muted Taupe" },
+  { code: "SND", name: "Warm Sand" },
+  { code: "PLM", name: "Vintage Plum" },
+];
+const TARGET_SIZES_DEF = ["S", "M", "L", "XL"];
+
+for (const p of mockProducts.slice(0, 3)) {
+  for (const c of TARGET_COLORS_DEF) {
+    for (const s of TARGET_SIZES_DEF) {
+      const varId = `var-${p.product_code}-${c.code}-${s}`;
+      const invId = `inv-${p.product_code}-${c.code}-${s}`;
+      mockVariants.push({
+        id: varId,
+        product_id: p.id,
+        sku: `${p.product_code}-${c.code}-${s}`,
+        color: c.name,
+        size: s,
+        active: true,
+        created_at: "2026-08-01T10:00:00.000Z",
+        updated_at: "2026-08-01T10:00:00.000Z",
+      });
+      mockInventory.push({
+        id: invId,
+        variant_id: varId,
+        on_hand: 0,
+        reserved: 0,
+        available: 0,
+        updated_at: "2026-08-01T10:00:00.000Z",
+      });
+    }
+  }
+}
+
+// Add legacy test SKU for inventory-order-google unit tests
+mockVariants.push({
+  id: "var-002",
+  product_id: "prod-legacy",
+  sku: "AH-M01-BLK-M",
+  color: "Black",
+  size: "M",
+  active: true,
+  created_at: "2026-08-01T10:00:00.000Z",
+  updated_at: "2026-08-01T10:00:00.000Z",
+});
+mockInventory.push({
+  id: "inv-002",
+  variant_id: "var-002",
+  on_hand: 10,
+  reserved: 0,
+  available: 10,
+  updated_at: "2026-08-01T10:00:00.000Z",
+});
+
 const mockState: MockState = {
-  collections: [],
-  products: [
-    {
-      id: "prod-001",
-      product_code: "MOM-001",
-      name: "Moment #01",
-      slug: "moment-001",
-      description: "Лимитированная унисекс-футболка AH Visuals of Moments с принтом заката над Киевом.",
-      price: 85.0,
-      collection_id: null,
-      active: true,
-      created_at: "2026-08-01T10:00:00.000Z",
-      updated_at: "2026-08-01T10:00:00.000Z",
-    },
-    {
-      id: "prod-002",
-      product_code: "MOM-002",
-      name: "Moment #02",
-      slug: "moment-002",
-      description: "Лимитированная унисекс-футболка AH Visuals of Moments с утренней атмосферой Подола.",
-      price: 85.0,
-      collection_id: null,
-      active: true,
-      created_at: "2026-08-02T10:00:00.000Z",
-      updated_at: "2026-08-02T10:00:00.000Z",
-    },
-  ],
-  variants: [
-    { id: "var-001", product_id: "prod-001", sku: "AH-M01-BLK-S", color: "Black", size: "S", active: true, created_at: "2026-08-01T10:00:00.000Z", updated_at: "2026-08-01T10:00:00.000Z" },
-    { id: "var-002", product_id: "prod-001", sku: "AH-M01-BLK-M", color: "Black", size: "M", active: true, created_at: "2026-08-01T10:00:00.000Z", updated_at: "2026-08-01T10:00:00.000Z" },
-    { id: "var-003", product_id: "prod-001", sku: "AH-M01-BLK-L", color: "Black", size: "L", active: true, created_at: "2026-08-01T10:00:00.000Z", updated_at: "2026-08-01T10:00:00.000Z" },
-    { id: "var-004", product_id: "prod-001", sku: "AH-M01-WHT-S", color: "White", size: "S", active: true, created_at: "2026-08-01T10:00:00.000Z", updated_at: "2026-08-01T10:00:00.000Z" },
-    { id: "var-005", product_id: "prod-001", sku: "AH-M01-WHT-M", color: "White", size: "M", active: true, created_at: "2026-08-01T10:00:00.000Z", updated_at: "2026-08-01T10:00:00.000Z" },
-    { id: "var-006", product_id: "prod-002", sku: "AH-M02-BLK-M", color: "Black", size: "M", active: true, created_at: "2026-08-02T10:00:00.000Z", updated_at: "2026-08-02T10:00:00.000Z" },
-    { id: "var-007", product_id: "prod-002", sku: "AH-M02-WHT-L", color: "White", size: "L", active: true, created_at: "2026-08-02T10:00:00.000Z", updated_at: "2026-08-02T10:00:00.000Z" },
-  ],
-  inventory: [
-    { id: "inv-001", variant_id: "var-001", on_hand: 12, reserved: 0, available: 12, updated_at: "2026-08-01T10:00:00.000Z" },
-    { id: "inv-002", variant_id: "var-002", on_hand: 10, reserved: 0, available: 10, updated_at: "2026-08-01T10:00:00.000Z" },
-    { id: "inv-003", variant_id: "var-003", on_hand: 8, reserved: 0, available: 8, updated_at: "2026-08-01T10:00:00.000Z" },
-    { id: "inv-004", variant_id: "var-004", on_hand: 8, reserved: 0, available: 8, updated_at: "2026-08-01T10:00:00.000Z" },
-    { id: "inv-005", variant_id: "var-005", on_hand: 15, reserved: 0, available: 15, updated_at: "2026-08-01T10:00:00.000Z" },
-    { id: "inv-006", variant_id: "var-006", on_hand: 14, reserved: 0, available: 14, updated_at: "2026-08-02T10:00:00.000Z" },
-    { id: "inv-007", variant_id: "var-007", on_hand: 9, reserved: 0, available: 9, updated_at: "2026-08-02T10:00:00.000Z" },
-  ],
+  collections: mockCollections,
+  products: mockProducts,
+  variants: mockVariants,
+  inventory: mockInventory,
   movements: [
-    { id: "mov-001", variant_id: "var-001", type: "INITIAL_STOCK", quantity: 12, order_id: null, on_hand_before: 0, on_hand_after: 12, reserved_before: 0, reserved_after: 0, created_by: "SYSTEM", note: "Начальный ввод остатка", created_at: "2026-08-01T10:00:00.000Z" },
-    { id: "mov-002", variant_id: "var-002", type: "INITIAL_STOCK", quantity: 10, order_id: null, on_hand_before: 0, on_hand_after: 10, reserved_before: 0, reserved_after: 0, created_by: "SYSTEM", note: "Начальный ввод остатка", created_at: "2026-08-01T10:00:00.000Z" },
+    {
+      id: "mov-002",
+      variant_id: "var-002",
+      type: "INITIAL_STOCK",
+      quantity: 10,
+      order_id: null,
+      on_hand_before: 0,
+      on_hand_after: 10,
+      reserved_before: 0,
+      reserved_after: 0,
+      created_by: "SYSTEM",
+      note: "Начальный ввод остатка",
+      created_at: "2026-08-01T10:00:00.000Z",
+    },
   ],
   orders: [],
   orderItems: [],

@@ -1,130 +1,357 @@
-# AH Visuals of Moments — Project Brief
+# AH Visuals of Moments — Technical Architecture & Project Reference
 
-## Project overview
-AH Visuals of Moments is a lightweight photography-focused website connecting T-shirts with the stories behind the photographs printed on them.
+## 1. Назначение и концепция проекта
 
-Each photograph represents one unisex T-shirt design. A design may have several color mockups, but all variants share the same story page and permanent QR code.
+**AH Visuals of Moments** — цифровая платформа и галерея авторской фотографии, связывающая физический объект (унисекс-футболку с принтом) с историей создания кадра, его точными географическими координатами и постоянным QR-маршрутом.
 
-The MVP is a catalogue and story platform, not an online shop.
+Каждая фотография представляет собой отдельную главу («Moment») и наносится на унисекс-футболку. Все цветовые и размерные вариации одного дизайна объединены единой историей, одной страницей витрины и постоянным QR-идентификатором.
 
-## Core MVP goals
-- Present the brand and the project concept.
-- Show collections and individual story pages.
-- Provide one permanent QR code per photograph.
-- Support English and Russian.
-- Detect browser language and fall back to English.
-- Support light and dark themes.
-- Load quickly on mobile devices.
-- Provide strong SEO foundations.
+---
 
-## Included in MVP
-- Landing-style home page.
-- Collection pages.
-- Individual story/product pages.
-- Responsive image and mockup galleries.
-- Permanent QR routes.
-- QR preview and download.
-- English and Russian localization.
-- Language switcher.
-- Light and dark themes.
-- External map links.
-- SEO metadata, sitemap and robots configuration.
-- Repository-based structured content.
+## 2. Архитектура: Разделение Content Layer и Commerce Layer
 
-## Not included in MVP
-- Shopping cart, checkout, payments or shipping.
-- Order management or customer accounts.
-- Prices, sizes or direct store links.
-- Scan analytics.
-- Full CMS or admin panel.
-- Separate photographer profile page.
-
-The data model should reserve an optional field for a future external purchase URL.
-
-## Content model
-
-### Collection
-A collection groups photographs by period, location, mood or visual idea.
-
-Initial working collection: **Summer 2019**.
-
-### Story / design
-Recommended fields:
-- permanent `id`, for example `AH001`;
-- changeable `slug`;
-- `collectionId`;
-- date label;
-- location;
-- coordinates;
-- map URL;
-- localized title, story and SEO fields;
-- main photograph;
-- T-shirt mockups;
-- optional color metadata;
-- optional external purchase URL;
-- publication status.
-
-## QR architecture
-A QR code must not point directly to a changeable page slug.
-
-Recommended format:
+Проект построен на строгом разделении контентного и коммерческого слоёв:
 
 ```text
-https://example.com/q/AH001
+┌──────────────────────────────────────────────────────────┐
+│                   CONTENT LAYER (Git / TS)               │
+│  src/data/moments.ts • Фотографии • Истории • Локализации│
+│  Координаты • QR-маршруты • Статусы (published / draft)  │
+└────────────────────────────┬─────────────────────────────┘
+                             │ moment.productCode ('MOM-001')
+                             ▼
+┌──────────────────────────────────────────────────────────┐
+│                COMMERCE LAYER (Supabase / PG)            │
+│  products.product_code • Collections • Variants • Склад  │
+│  Orders • Order Items • Stock Movements • Idempotency    │
+└────────────────────────────┬─────────────────────────────┘
+                             │ REST / Server Actions
+                             ▼
+┌──────────────────────────────────────────────────────────┐
+│          OPERATIONAL LAYER (Google Sheets API)           │
+│  Массовое редактирование цен (€) и остатков (On Hand)    │
+│  Двухфазный импорт с валидацией и предварительным показом │
+└──────────────────────────────────────────────────────────┘
 ```
 
-The `/q/[id]` route should:
-1. resolve the permanent photograph ID;
-2. detect browser language;
-3. check whether that translation exists;
-4. redirect to the current localized story URL;
-5. fall back to English.
+### 2.1. Content Layer (Git / TypeScript)
+- **Файл-источник:** `src/data/moments.ts`
+- **Сущности:** Фотографии высокого разрешения, истории авторов на двух языках (`en`, `ru`), координаты съемки, внешние ссылки на карты, постоянные пути для QR-кодов (`/q/[id]`), статусы публикации (`published`, `draft`).
+- **Независимость контента:** Если товар в базе деактивирован (`active: false`) или его остаток равен нулю (`Sold Out`), страница истории **не скрывается** — читатели и владельцы футболок всегда имеют доступ к авторской истории и фотографии.
 
-Use a temporary redirect so the destination can change later without reprinting QR codes.
+### 2.2. Commerce Layer (Supabase / PostgreSQL)
+- **Технический единый источник истины (Single Source of Truth)**.
+- **Таблицы:**
+  - `collections` — коллекции одежды (`REGULAR` или `LIMITED`).
+  - `products` — товары с авторитетной ценой в EUR и неизменяемым `product_code`.
+  - `product_variants` — цветоразмерная матрица SKU.
+  - `inventory` — складской учет с разделением физического остатка и резерва.
+  - `orders` — заказы клиентов с поддержкой persistent idempotency.
+  - `order_items` — позиции заказов с фиксацией цены на момент оформления.
+  - `stock_movements` — полный аудит-лог движения остатков.
+  - `google_integrations` — настройки активной таблицы синхронизации.
+  - `google_import_export_logs` — журнал операций синхронизации с Google Sheets.
 
-Preferred download format: SVG. Optional format: PNG.
+### 2.3. Связь слоев: Product Code
+Связь между фронтенд-контентом и базой данных осуществляется через строго типизированный код:
+`moment.productCode` (`MOM-001`) ⟷ `products.product_code` (`MOM-001`).
+Поле `product_code` в PostgreSQL является строго неизменяемым (`IMMUTABLE`) на уровне триггера базы данных.
 
-## Localization
-MVP languages:
-- English — default and fallback;
-- Russian.
+---
 
-Planned languages:
-- Ukrainian;
-- French;
-- German.
+## 3. Реальный каталог продукции
 
-Stories will initially be provided in Russian. Translations should be prepared and stored before publication, not generated dynamically on each visit.
+Каталог сформирован и проверен в hosted Supabase:
 
-## Technical direction
-- Next.js
-- TypeScript
-- App Router
-- Tailwind CSS
-- Vercel
-- repository-based TypeScript, JSON or MDX content
-- no database or CMS in MVP
+### 3.1. Коллекция
+- **Название:** Summer 2019
+- **Slug:** `summer-2019`
+- **Тип:** `REGULAR`
+- **Статус:** `active: true`
 
-Possible supporting packages:
-- `next-intl`
-- `next-themes`
-- QR generation library
-- Zod
+### 3.2. Товары
+| Product Code | Название | Slug | Базовая цена | Статус |
+| :--- | :--- | :--- | :---: | :---: |
+| **MOM-001** | Moment 001 | `moment-001` | **€50.00** | `active: true` |
+| **MOM-002** | Moment 002 | `moment-002` | **€50.00** | `active: true` |
+| **MOM-003** | Moment 003 | `moment-003` | **€50.00** | `active: true` |
 
-## Initial route structure
-```text
-/[locale]
-/[locale]/collections
-/[locale]/collections/[slug]
-/[locale]/stories/[slug]
-/q/[id]
+- **Базовая валюта:** EUR (€).
+
+### 3.3. Варианты (Variants)
+Каждый продукт выпускается в матрице **4 цвета × 4 размера = 16 SKU**.
+Всего в реальном каталоге **48 production SKU**:
+- **Цвета:** Deep Black (`BLK`), Muted Taupe (`TPE`), Warm Sand (`SND`), Vintage Plum (`PLM`).
+- **Размеры:** `S`, `M`, `L`, `XL`.
+- **Формат SKU:** `<PRODUCT_CODE>-<COLOR_CODE>-<SIZE>` (например, `MOM-001-BLK-M`, `MOM-002-PLM-XL`).
+
+---
+
+## 4. Складская модель и атомарное резервирование
+
+Таблица `inventory` реализует прецизионную модель учета с защитой от оверселлинга:
+
+```sql
+on_hand   INTEGER NOT NULL DEFAULT 0, -- Физический остаток на складе
+reserved  INTEGER NOT NULL DEFAULT 0, -- Активный резерв под оформленные заказы
+available INTEGER GENERATED ALWAYS AS (on_hand - reserved) STORED -- Доступно к продаже
 ```
 
-## Development principles
-- Photography comes before interface decoration.
-- Mobile experience is essential.
-- Avoid generic SaaS styling.
-- Use restrained motion.
-- Avoid unnecessary dependencies.
-- Optimize images and typography carefully.
-- Preserve stable QR identifiers permanently.
+### 4.1. Жизненный цикл остатков
+1. **Оформление заказа (`rpc_create_order_with_reservation`):**
+   - Блокировка строки остатков: `SELECT ... FROM inventory WHERE variant_id = ... FOR UPDATE`.
+   - Проверка: `(on_hand - reserved) >= requested_qty`.
+   - При успехе: `reserved = reserved + qty`. Значение `available` уменьшается, физический `on_hand` не меняется.
+   - Запись движения: `type: 'RESERVE'`.
+2. **Отмена заказа (`rpc_update_order_status` -> `CANCELLED`):**
+   - Освобождение резерва: `reserved = reserved - qty`.
+   - Значение `available` восстанавливается, `on_hand` не меняется.
+   - Запись движения: `type: 'RELEASE_RESERVATION'`.
+3. **Отправка заказа (`rpc_update_order_status` -> `SHIPPED`):**
+   - Физическое списание со склада: `on_hand = on_hand - qty`, `reserved = reserved - qty`.
+   - Значение `available` не изменяется.
+   - Запись движения: `type: 'SHIP'`.
+4. **Ручная корректировка / Поставка (`rpc_adjust_inventory`):**
+   - Запрещено уменьшать `on_hand` ниже активного `reserved`.
+   - Запись движений: `INITIAL_STOCK`, `RESTOCK`, `MANUAL_ADJUSTMENT`.
+
+### 4.2. Защита от состояния гонки (Concurrency Guard)
+Вся процедура создания заказа выполняется в единой ACID-транзакции на стороне PostgreSQL через RPC-функцию с блокировкой строк `FOR UPDATE`. Параллельные запросы на последний экземпляр товара выстраиваются в очередь: ровно один заказ фиксируется, остальные мгновенно отклоняются с понятной ошибкой о нехватке доступного остатка.
+
+---
+
+## 5. Интеграция с Google Sheets
+
+Google Sheets выполняет роль **операционного интерфейса менеджера** для удобного пакетного обновления складских остатков и цен без прямого доступа к PostgreSQL.
+
+### 5.1. Принципы интеграции
+- **Авторизация:** Google Cloud Service Account (JWT) с правами Editor на целевую таблицу.
+- **Приоритет разрешения таблицы:**
+  1. Активная запись в таблице `google_integrations` (БД);
+  2. Переменная окружения `GOOGLE_DEFAULT_SPREADSHEET_ID` (ENV);
+  3. Ошибка отсутствия конфигурации.
+- **Идентификация товаров:** Строго по `Product Code`. Восстановление или угадывание кода из SKU запрещено.
+- **Защита системных полей:** Колонки `Зарезервировано` и `Доступно к продаже` защищены от перезаписи. Менеджер редактирует только физический `На складе (On Hand)` и `Цена (€)`.
+- **Экспорт нулевых остатков:** При выгрузке гарантируется передача точных числовых нулей (`0`), исключая пустые ячейки и `NaN`.
+- **Двухфазный импорт (Preview-first):**
+  1. *Этап 1 (Preview):* Проверка валидности шапки, сопоставление типов коллекций, выявление конфликтующих цен внутри группы одного товара, обнаружение неизвестных коллекций (автосоздание коллекций запрещено).
+  2. *Этап 2 (Execute):* Применение изменений в транзакции с протоколированием в `google_import_export_logs`.
+
+---
+
+## 6. Storefront: Интеграция витрины (Stage A)
+
+- **Серверный рендеринг (RSC):** Страница `/[locale]/moments/[slug]` при каждом запросе (`no-store`) запрашивает актуальное состояние товара через `getCommerceProductByCode`.
+- **Авторитетная цена:** Отображается цена в евро из базы данных Supabase.
+- **Интерактивный выбор SKU:**
+  - Компонент `MomentCommerceSection` позволяет выбрать цвет и размер.
+  - При наличии доступного остатка (`available > 0`) отображается кнопка «Купить в один клик» («Quick Order»).
+  - При `available === 0` вариант помечается как `Sold Out` (распродано), форма заказа блокируется.
+- **Тип коллекции:** На карточке отображается бейдж `LIMITED` или `REGULAR`.
+- **Изоляция сбоев:** При временной недоступности базы данных контентная часть истории (фото, текст, карта) продолжает работать штатно.
+
+---
+
+## 7. Быстрый заказ: Quick Order (Stage B)
+
+Процесс покупки максимально упрощен и оптимизирован для конверсии без создания учетных записей.
+
+### 7.1. Пользовательский интерфейс и форма
+- Вызов оформления по кнопке «Купить в один клик» на странице конкретной истории.
+- **Поля формы:**
+  - `customer_name` — Имя покупателя (*обязательно*).
+  - `customer_email` и/или `customer_phone` — Контакты (*хотя бы одно поле обязательно*).
+  - `shipping_address` — Адрес доставки (*опционально*).
+  - `notes` — Комментарии к заказу (*опционально*).
+- **Количество:** Фиксировано ровно `1 шт.` на заказ.
+
+### 7.2. Серверный API и защита от манипуляций
+- **Эндпоинт:** `POST /api/orders` (публичный).
+- **Authoritative Pricing:** Клиент передает только `variant_id`. Цена за единицу берется сервером непосредственно из `products.price` в БД. Подмена цены клиентом физически невозможна.
+- **Persistent Idempotency:**
+  - Клиент генерирует `idempotency_key` на сессию оформления.
+  - Таблица `orders` содержит уникальный индекс `idx_orders_idempotency_key`.
+  - Повторный клик или сбой сети возвращает существующий созданный заказ без повторного списания остатка.
+- **Атомарная транзакция:** Создание заказа, бронирование в `inventory` и добавление записи в `stock_movements` выполняются единым блоком в `rpc_create_order_with_reservation`.
+
+---
+
+## 8. Уведомления в Telegram
+
+- После успешного коммита транзакции заказа в PostgreSQL сервер отправляет форматированное уведомление в Telegram-канал / чат администраторов.
+- **Шаблон сообщения:** Номер заказа, сумма в EUR, товар, цвет, размер, SKU, имя клиента, телефон/email, адрес доставки.
+- **Принцип изоляции сбоев:** Сбой Telegram API (сетевой таймаут, неверный токен, блокировка) логируется как `warning` и **не отменяет** успешно зафиксированный в базе данных заказ.
+
+---
+
+## 9. Административная панель (/admin)
+
+Административная панель доступна по защищенному маршруту `/admin` и содержит следующие разделы:
+
+1. **/admin (Дашборд):** Сводные агрегированные показатели (товары, варианты, остаток On Hand, резерв, доступно, новые заказы) и последние события склада.
+2. **/admin/products:** Список товаров, просмотр цен, привязки к коллекциям и статуса активности.
+3. **/admin/collections:** Управление коллекциями (`Summer 2019`), создание новых коллекций, переключение типа (`REGULAR` / `LIMITED`) и статуса активности.
+4. **/admin/inventory:** Складская ведомость по всем 48 SKU с возможностью точечной ручной корректировки остатков (`RESTOCK`, `MANUAL_ADJUSTMENT`).
+5. **/admin/orders:** Управление заказами, просмотр позиций и смена статусов:
+   `NEW` → `CONFIRMED` → `PROCESSING` → `SHIPPED` (списание со склада) → `COMPLETED` или `CANCELLED` (освобождение резерва).
+6. **/admin/movements:** Полный журнал аудита складских движений (`RESERVE`, `RELEASE_RESERVATION`, `SHIP`, `RESTOCK`, `INITIAL_STOCK`).
+7. **/admin/google-sheets:** Настройка Google Spreadsheet ID, экспорт каталога в Google Sheets, валидация и предпросмотр изменений перед применением.
+
+---
+
+## 10. Структура маршрутов проекта
+
+### 10.1. Публичные маршруты (Public)
+| Маршрут | Описание |
+| :--- | :--- |
+| `/[locale]` | Главная страница галереи (Hero, концепция, избранные моменты) |
+| `/[locale]/collection` | Сетка всех опубликованных историй |
+| `/[locale]/moments/[slug]` | Страница истории, фотография, координаты, витрина и Quick Order |
+| `/[locale]/about` | Философия проекта и информация об авторе |
+| `/[locale]/contact` | Контактная информация |
+| `/q/[id]` | Постоянный QR-маршрут с определением языка и редиректом на историю |
+| `POST /api/orders` | Публичный API создания быстрого заказа с атомарной бронью |
+
+### 10.2. Административные маршруты (Admin)
+| Маршрут | Описание |
+| :--- | :--- |
+| `/admin/login` | Страница авторизации администратора |
+| `/admin` | Сводный дашборд и аналитика остатков |
+| `/admin/products` | Список и карточки товаров |
+| `/admin/collections` | Управление коллекциями |
+| `/admin/inventory` | Управление складскими остатками |
+| `/admin/orders` | Управление заказами клиентов и жизненным циклом |
+| `/admin/movements` | Журнал складских движений (аудит-лог) |
+| `/admin/google-sheets` | Синхронизация с Google Таблицами |
+
+---
+
+## 11. Переменные окружения (Environment Variables)
+
+Все конфигурации хранятся в `.env.local` (шаблон: `.env.example`):
+
+### 11.1. Клиентские переменные (Public)
+- `NEXT_PUBLIC_SITE_URL` — базовый URL сайта (например, `https://ahvisuals.com`).
+- `NEXT_PUBLIC_ALLOW_INDEXING` — управление поисковой индексацией (`true` / `false`).
+- `NEXT_PUBLIC_SUPABASE_URL` — URL проекта Supabase.
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — публичный анонимный ключ Supabase.
+
+### 11.2. Серверные переменные (Server-side Only)
+- `SUPABASE_SECRET_KEY` — секретный сервисный ключ (`service_role`) для административных RPC и мутаций склада.
+- `ADMIN_PASSWORD` — пароль для входа в `/admin`.
+- `ADMIN_SESSION_SECRET` — ключ подписи сессионных cookie администратора (минимум 32 символа).
+- `GOOGLE_SERVICE_ACCOUNT_EMAIL` — email сервисного аккаунта Google Cloud.
+- `GOOGLE_PRIVATE_KEY` — закрытый ключ сервисного аккаунта в формате PEM.
+- `GOOGLE_DEFAULT_SPREADSHEET_ID` — ID Google Таблицы по умолчанию (fallback при отсутствии записи в БД).
+- `TELEGRAM_BOT_TOKEN` — токен Telegram-бота для отправки уведомлений.
+- `TELEGRAM_CHAT_ID` — ID чата/канала Telegram для получения уведомлений о заказах.
+- `RUN_HOSTED_INTEGRATION_TESTS` — флаг запуска интеграционных тестов против реальной hosted Supabase (по умолчанию `false`, все тесты запускаются на изолированном in-memory моке).
+
+---
+
+## 12. Миграции Supabase (Database Schema History)
+
+Схема базы данных управляется версионированными миграциями в папке `supabase/migrations/`:
+
+1. **`20260914_init_schema.sql`:**
+   - Создание расширения `pgcrypto`.
+   - Создание базовых таблиц: `products`, `product_variants`, `inventory`, `stock_movements`, `orders`, `order_items`, `google_integrations`, `google_import_export_logs`.
+   - Определение констрейнтов: неотрицательные остатки, `reserved <= on_hand`, вычисляемая колонка `available`.
+   - Создание базовых RPC: `rpc_create_order_with_reservation`, `rpc_update_order_status`, `rpc_adjust_inventory`.
+2. **`20260915_collections_and_product_codes.sql`:**
+   - Создание таблицы `collections` (`REGULAR` / `LIMITED`).
+   - Добавление связи `products.collection_id`.
+   - Добавление обязательного поля `products.product_code` в верхнем регистре.
+   - Создание триггера `trg_products_product_code_immutable`, блокирующего любое изменение `product_code`.
+3. **`20260916_order_idempotency_and_atomic_rpc.sql`:**
+   - Добавление поля `idempotency_key` в таблицу `orders` и уникального частичного индекса `idx_orders_idempotency_key`.
+   - Обновление функции `rpc_create_order_with_reservation` со строгой защитой от клиентской подмены цены, проверкой статуса активности товаров/вариантов и атомарным резервированием.
+
+---
+
+## 13. Операционный регламент (Operational Workflow)
+
+### 13.1. Добавление новой истории / фотографии
+1. Разработчик добавляет фотографии в `public/moments/<id>/`.
+2. В файле `src/data/moments.ts` создается новый объект `Moment` с указанием `productCode` (например, `MOM-004`), локализованных текстов и координат.
+3. В базе данных администратор или скрипт создает соответствующий товар с кодом `MOM-004` и вариантами.
+
+### 13.2. Изменение цен и складских остатков
+1. Менеджер открывает `/admin/google-sheets` и нажимает «Экспорт в Google Sheets».
+2. В Google Таблице на вкладке «Остатки» вносятся новые значения в колонки «На складе (On Hand)» и «Цена (€)».
+3. В админ-панели нажимается кнопка «Предпросмотр импорта».
+4. Система проверяет строки на ошибки. При отсутствии блокирующих ошибок нажимается «Применить импорт в Supabase».
+5. Новые цены и остатки мгновенно отображаются на витрине сайта.
+
+### 13.3. Обработка поступившего заказа
+1. Покупатель нажимает «Купить в один клик» на витрине и отправляет форму.
+2. В PostgreSQL атомарно фиксируется резерв, заказ создается в статусе `NEW`.
+3. В Telegram-чат менеджеров поступает уведомление с деталями заказа.
+4. Менеджер связывается с клиентом, подтверждает заказ и меняет статус в `/admin/orders`:
+   `NEW` → `CONFIRMED` → `PROCESSING`.
+5. При передаче посылки курьеру статус меняется на `SHIPPED` (происходит физическое списание `on_hand` в базе данных).
+6. После доставки статус переводится в `COMPLETED`.
+7. Если клиент отказался от заказа до отправки, статус переводится в `CANCELLED` (резерв автоматически возвращается на склад).
+
+---
+
+## 14. Что намеренно НЕ реализовано (Intentionally Out of Scope)
+
+Данные функции сознательно исключены из текущей фазы проекта и не должны документироваться как реализованные:
+- **Онлайн-эквайринг и платежи:** Оплата картами через платежные шлюзы (Stripe, WayForPay, PayPal) не подключена; расчеты производятся по согласованию с менеджером.
+- **Корзина покупок:** Мульти-товарная корзина отсутствует; оформление происходит поштучно в формате 1 клика.
+- **Личные кабинеты клиентов:** Регистрация, авторизация и профили покупателей отсутствуют.
+- **API служб доставки:** Автоматический расчет стоимости доставки и генерация накладных (DHL, Новая Почта) отсутствуют.
+- **Email-уведомления:** Автоматическая рассылка писем клиентам не настроена.
+- **CMS для контента историй:** Тексты и фотографии историй хранятся в репозитории Git, а не в базе данных.
+- **Глобальный Edge Rate Limiting:** Защита от DDoS и агрессивного спама отдана на уровень инфраструктуры хостинга (Netlify/Vercel/Cloudflare).
+
+---
+
+## 15. Команды разработки и обслуживания
+
+### 15.1. Стандартные команды проекта
+```bash
+# Установка зависимостей
+npm install
+
+# Запуск локального сервера разработки
+npm run dev
+
+# Проверка типов TypeScript (строгий режим)
+npx tsc --noEmit
+
+# Запуск автоматических тестов (изолированный in-memory мок)
+npm test
+
+# Запуск тестов против боевой hosted Supabase базы данных
+RUN_HOSTED_INTEGRATION_TESTS=true npm test
+
+# Проверка линтера (ESLint)
+npm run lint
+
+# Сборка production bundle (Next.js Turbopack)
+npm run build
+
+# Запуск production сервера
+npm start
+```
+
+### 15.2. Управление базой данных через Supabase CLI
+```bash
+# Привязка локального проекта к hosted проекту Supabase
+npx supabase link --project-ref <project-id>
+
+# Просмотр статуса примененных миграций
+npx supabase migration list
+
+# Проверка миграций перед накатом (Dry-run)
+npx supabase db push --dry-run
+
+# Накат локальных миграций на hosted базу данных
+npx supabase db push
+```
+
+### 15.3. Скрипты обслуживания
+- `npx tsx scripts/inspect-supabase.ts` — детальная диагностика и снимок состояния базы данных Supabase.
+- `npx tsx scripts/clean-production-commerce.ts` — безопасный fail-closed сброс тестовых данных в production-ready состояние.

@@ -13,6 +13,19 @@ import {
   Collection,
   CollectionType,
 } from "@/types/admin";
+import {
+  CommerceProduct,
+  CommerceVariant,
+  CommerceInventory,
+  CommerceCollection,
+} from "@/types/commerce";
+
+export type {
+  CommerceProduct,
+  CommerceVariant,
+  CommerceInventory,
+  CommerceCollection,
+};
 
 export function isSupabaseConfigured(): boolean {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -45,6 +58,9 @@ export function getSupabaseAdmin(): SupabaseClient | null {
 
     supabaseAdminInstance = createClient(url, key, {
       auth: { persistSession: false, autoRefreshToken: false },
+      global: {
+        fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }),
+      },
     });
   }
 
@@ -309,6 +325,138 @@ export async function fetchProducts(): Promise<Product[]> {
         inventory: mockState.inventory.find((inv) => inv.variant_id === v.id),
       })),
   }));
+}
+
+export async function getCommerceProductByCode(
+  productCode: string
+): Promise<CommerceProduct | null> {
+  const code = (productCode || "").trim().toUpperCase();
+  if (!code) return null;
+
+  const supabase = getSupabaseAdmin();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("products")
+        .select(`
+          id,
+          product_code,
+          price,
+          active,
+          collection:collections(name, slug, type),
+          variants:product_variants(
+            id,
+            sku,
+            color,
+            size,
+            active,
+            inventory(on_hand, reserved, available)
+          )
+        `)
+        .eq("product_code", code)
+        .maybeSingle();
+
+      if (error) {
+        console.error(`[Commerce] Ошибка чтения товара ${code} из Supabase:`, error.message);
+        return null;
+      }
+
+      if (!data) return null;
+
+      type RawVariantResponse = {
+        id: string;
+        sku: string;
+        color: string;
+        size: string;
+        active: boolean;
+        inventory?: { on_hand: number; reserved: number; available: number } | Array<{ on_hand: number; reserved: number; available: number }> | null;
+      };
+
+      const rawVariants = (Array.isArray(data.variants) ? data.variants : []) as unknown as RawVariantResponse[];
+      const normalizedVariants: CommerceVariant[] = rawVariants.map((v) => {
+        const inv = Array.isArray(v.inventory) ? v.inventory[0] : v.inventory;
+        return {
+          id: v.id,
+          sku: v.sku,
+          color: v.color,
+          size: v.size,
+          active: Boolean(v.active),
+          inventory: inv
+            ? {
+                on_hand: Number(inv.on_hand) || 0,
+                reserved: Number(inv.reserved) || 0,
+                available: Number(inv.available) || 0,
+              }
+            : null,
+        };
+      });
+
+      type RawCollectionResponse = {
+        name: string;
+        slug: string;
+        type: CollectionType;
+      };
+
+      const col = (Array.isArray(data.collection) ? data.collection[0] : data.collection) as unknown as RawCollectionResponse | null;
+
+      return {
+        id: data.id,
+        product_code: data.product_code,
+        price: Number(data.price),
+        active: Boolean(data.active),
+        collection: col
+          ? {
+              name: col.name,
+              slug: col.slug,
+              type: col.type,
+            }
+          : null,
+        variants: normalizedVariants,
+      };
+    } catch (err: unknown) {
+      console.error(`[Commerce] Исключение при запросе товара ${code}:`, err);
+      return null;
+    }
+  }
+
+  // Fallback разрешён ТОЛЬКО в тестовом окружении
+  if (process.env.NODE_ENV === "test") {
+    const p = mockState.products.find((prod) => prod.product_code.toUpperCase() === code);
+    if (!p) return null;
+    const col = mockState.collections.find((c) => c.id === p.collection_id);
+    const variants: CommerceVariant[] = mockState.variants
+      .filter((v) => v.product_id === p.id)
+      .map((v) => {
+        const inv = mockState.inventory.find((i) => i.variant_id === v.id);
+        return {
+          id: v.id,
+          sku: v.sku,
+          color: v.color,
+          size: v.size,
+          active: v.active,
+          inventory: inv
+            ? {
+                on_hand: inv.on_hand,
+                reserved: inv.reserved,
+                available: inv.available,
+              }
+            : null,
+        };
+      });
+
+    return {
+      id: p.id,
+      product_code: p.product_code,
+      price: p.price,
+      active: p.active,
+      collection: col ? { name: col.name, slug: col.slug, type: col.type } : null,
+      variants,
+    };
+  }
+
+  // В production / live при отсутствии Supabase возвращаем null (никаких моковых цен реальным пользователям)
+  return null;
 }
 
 export async function createProduct(payload: {

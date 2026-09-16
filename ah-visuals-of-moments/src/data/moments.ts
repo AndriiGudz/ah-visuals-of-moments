@@ -4,6 +4,7 @@ import { RawMoment, Moment } from "@/types/moment";
 export const RAW_MOMENTS: RawMoment[] = [
   {
     id: "AH001",
+    productCode: "MOM-001",
     slug: "moment-001",
     status: "published",
     createdAt: "2026-08-01T10:00:00.000Z",
@@ -158,6 +159,7 @@ export const RAW_MOMENTS: RawMoment[] = [
   },
   {
     id: "AH002",
+    productCode: "MOM-002",
     slug: "moment-002",
     status: "published",
     createdAt: "2026-08-02T12:00:00.000Z",
@@ -312,6 +314,7 @@ export const RAW_MOMENTS: RawMoment[] = [
   },
   {
     id: "AH003",
+    productCode: "MOM-003",
     slug: "moment-003",
     status: "published",
     createdAt: "2026-08-03T15:00:00.000Z",
@@ -475,6 +478,7 @@ export function resolveMoment(raw: RawMoment, locale: Locale): Moment {
 
   return {
     id: raw.id,
+    productCode: raw.productCode,
     slug: raw.slug,
     title: trans.title,
     shortDescription: trans.shortDescription,
@@ -572,6 +576,18 @@ export function getMomentBySlug(
   return resolveMoment(raw, locale);
 }
 
+export function getMomentByProductCode(
+  productCode: string,
+  locale: Locale = defaultLocale
+): Moment | undefined {
+  const raw = RAW_MOMENTS.find((m) => m.productCode === productCode);
+  if (!raw || raw.status !== "published") {
+    return undefined;
+  }
+  return resolveMoment(raw, locale);
+}
+
 export function getAllMoments(locale: Locale = defaultLocale): Moment[] {
   return RAW_MOMENTS.map((m) => resolveMoment(m, locale));
 }
+

@@ -107,4 +107,17 @@ export const ru: Dictionary = {
     light: "Светлая",
     dark: "Тёмная",
   },
+  commerce: {
+    priceLabel: "Цена",
+    currentlyUnavailable: "Сейчас недоступно для заказа",
+    tempUnavailable: "Информация о доступности временно недоступна",
+    soldOut: "Нет в наличии",
+    allSoldOut: "Все размеры временно распроданы",
+    inStock: "В наличии",
+    outOfStock: "Нет в наличии",
+    limitedBadge: "Лимитированная серия",
+    regularBadge: "Постоянная серия",
+    selectColor: "Цвет",
+    selectSize: "Размер",
+  },
 };

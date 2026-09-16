@@ -105,6 +105,19 @@ export const en = {
     light: "Light",
     dark: "Dark",
   },
+  commerce: {
+    priceLabel: "Price",
+    currentlyUnavailable: "Currently unavailable for order",
+    tempUnavailable: "Availability information is temporarily unavailable",
+    soldOut: "Sold out",
+    allSoldOut: "All sizes are currently out of stock",
+    inStock: "In stock",
+    outOfStock: "Out of stock",
+    limitedBadge: "Limited Edition",
+    regularBadge: "Regular Series",
+    selectColor: "Color",
+    selectSize: "Size",
+  },
 };
 
 export type Dictionary = typeof en;

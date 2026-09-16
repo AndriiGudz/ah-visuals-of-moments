@@ -49,6 +49,7 @@ export interface MomentTranslation {
 
 export interface RawMoment {
   id: string;
+  productCode: string;
   slug: string;
   status: ContentStatus;
   createdAt: string;
@@ -69,6 +70,7 @@ export interface RawMoment {
 
 export interface Moment {
   id: string;
+  productCode: string;
   slug: string;
   title: string;
   shortDescription: string;

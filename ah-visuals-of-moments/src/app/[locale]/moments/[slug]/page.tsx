@@ -6,6 +6,10 @@ import { getDictionary } from "@/i18n/getDictionary";
 import { getMomentBySlug, getPublishedMoments } from "@/data/moments";
 import { SITE_URL, ROBOTS_METADATA } from "@/config/site";
 import { QrCodeTrigger } from "@/components/qr/QrCodeTrigger";
+import { getCommerceProductByCode } from "@/lib/supabase/server";
+import { ProductCommerceBlock } from "@/components/commerce/ProductCommerceBlock";
+
+export const dynamic = "force-dynamic";
 
 interface StoryPageProps {
   params: Promise<{
@@ -90,6 +94,7 @@ export default async function MomentStoryPage({ params }: StoryPageProps) {
     notFound();
   }
 
+  const commerce = await getCommerceProductByCode(moment.productCode);
   const heroImage = moment.heroImage || moment.mainImage;
 
   return (
@@ -223,56 +228,12 @@ export default async function MomentStoryPage({ params }: StoryPageProps) {
           </div>
         )}
 
-        {/* Colors & Sizes metadata */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-[var(--bg-surface)] border border-[var(--border-subtle)] p-6 rounded-sm">
-          <div>
-            <h3 className="text-xs uppercase tracking-wider text-[var(--text-secondary)] font-mono mb-2">
-              {dictionary.story.availableColors}
-            </h3>
-            {moment.availableColors.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {moment.availableColors.map((color) => (
-                  <span
-                    key={color.id}
-                    className="inline-flex items-center gap-2 text-xs bg-[var(--bg-elevated)] border border-[var(--border-subtle)] px-3 py-1.5 rounded-sm text-[var(--text-primary)]"
-                  >
-                    <span
-                      className="w-2.5 h-2.5 rounded-full border border-[var(--border-highlight)]"
-                      style={{ backgroundColor: color.hex }}
-                    />
-                    {color.name}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <span className="text-xs text-[var(--text-muted)]">
-                {dictionary.story.toBeAnnounced}
-              </span>
-            )}
-          </div>
-
-          <div>
-            <h3 className="text-xs uppercase tracking-wider text-[var(--text-secondary)] font-mono mb-2">
-              {dictionary.story.availableSizes}
-            </h3>
-            {moment.availableSizes.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {moment.availableSizes.map((size) => (
-                  <span
-                    key={size}
-                    className="text-xs bg-[var(--bg-elevated)] border border-[var(--border-subtle)] px-3 py-1.5 rounded-sm text-[var(--text-primary)] font-mono"
-                  >
-                    {size}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <span className="text-xs text-[var(--text-muted)]">
-                {dictionary.story.toBeAnnounced}
-              </span>
-            )}
-          </div>
-        </div>
+        {/* Live Commerce Layer: Live Price, Color & Size Availability from Supabase */}
+        <ProductCommerceBlock
+          commerce={commerce}
+          visualColors={moment.availableColors}
+          dictionary={dictionary.commerce}
+        />
       </section>
 
       {/* Reserved Future Extensions Section */}

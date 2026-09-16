@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx tests/inventory-order-google.test.ts && tsx tests/storefront-commerce.test.ts"
+    "test": "tsx tests/inventory-order-google.test.ts && tsx tests/storefront-commerce.test.ts && tsx tests/quick-order-stage-b.test.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

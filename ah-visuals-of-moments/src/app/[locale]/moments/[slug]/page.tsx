@@ -231,6 +231,7 @@ export default async function MomentStoryPage({ params }: StoryPageProps) {
         {/* Live Commerce Layer: Live Price, Color & Size Availability from Supabase */}
         <ProductCommerceBlock
           commerce={commerce}
+          productName={moment.title}
           visualColors={moment.availableColors}
           dictionary={dictionary.commerce}
         />

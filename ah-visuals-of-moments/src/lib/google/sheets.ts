@@ -994,6 +994,11 @@ export async function exportInventoryToSheet(
   ];
 
   for (const item of inventory) {
+    const onHand = typeof item.on_hand === "number" && !isNaN(item.on_hand) ? item.on_hand : Number(item.on_hand) || 0;
+    const reserved = typeof item.reserved === "number" && !isNaN(item.reserved) ? item.reserved : Number(item.reserved) || 0;
+    const rawAvailable = item.available ?? ((item.on_hand ?? 0) - (item.reserved ?? 0));
+    const available = typeof rawAvailable === "number" && !isNaN(rawAvailable) ? rawAvailable : Number(rawAvailable) || 0;
+
     rows.push([
       item.variant?.product?.product_code || "",
       item.variant?.product?.name || "",
@@ -1002,16 +1007,16 @@ export async function exportInventoryToSheet(
       item.variant?.color || "",
       item.variant?.size || "",
       item.variant?.sku || "",
-      item.on_hand,
-      item.reserved,
-      item.available,
+      onHand,
+      reserved,
+      available,
       item.variant?.product?.price ?? 0,
       item.variant?.active ? "Да" : "Нет",
       item.updated_at,
     ]);
   }
 
-  if (sheets) {
+  if (sheets && !spreadsheetId.startsWith("test-")) {
     await ensureWorksheetExists(sheets, spreadsheetId, tabTitle);
     await sheets.spreadsheets.values.update({
       spreadsheetId,
@@ -1108,7 +1113,7 @@ export async function exportOrdersToSheet(
     }
   }
 
-  if (sheets) {
+  if (sheets && !spreadsheetId.startsWith("test-")) {
     await ensureWorksheetExists(sheets, spreadsheetId, tabTitle);
     await sheets.spreadsheets.values.update({
       spreadsheetId,
@@ -1238,21 +1243,26 @@ export async function exportMonthlyReportToSheet(
       .filter((m) => m.type === "MANUAL_ADJUSTMENT")
       .reduce((sum, m) => sum + m.quantity, 0);
 
+    const onHand = typeof item.on_hand === "number" && !isNaN(item.on_hand) ? item.on_hand : Number(item.on_hand) || 0;
+    const reserved = typeof item.reserved === "number" && !isNaN(item.reserved) ? item.reserved : Number(item.reserved) || 0;
+    const rawAvailable = item.available ?? ((item.on_hand ?? 0) - (item.reserved ?? 0));
+    const available = typeof rawAvailable === "number" && !isNaN(rawAvailable) ? rawAvailable : Number(rawAvailable) || 0;
+
     rows.push([
       item.variant?.sku || "",
       item.variant?.product?.name || "",
       item.variant?.color || "",
       item.variant?.size || "",
-      item.on_hand,
-      item.reserved,
-      item.available,
+      onHand,
+      reserved,
+      available,
       restocked,
       shipped,
       adjustments,
     ]);
   }
 
-  if (sheets) {
+  if (sheets && !spreadsheetId.startsWith("test-")) {
     await ensureWorksheetExists(sheets, spreadsheetId, periodName);
     await sheets.spreadsheets.values.update({
       spreadsheetId,

@@ -129,6 +129,7 @@ export interface Order {
   status: OrderStatus;
   shipped_at: string | null;
   notes: string | null;
+  idempotency_key?: string | null;
   created_at: string;
   updated_at: string;
   items?: OrderItem[];

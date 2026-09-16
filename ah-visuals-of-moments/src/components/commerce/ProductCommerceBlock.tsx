@@ -4,6 +4,9 @@ import React, { useState, useMemo } from "react";
 import { CommerceProduct, CommerceVariant } from "@/types/commerce";
 import { Dictionary } from "@/i18n/dictionaries/en";
 
+import { useRouter } from "next/navigation";
+import { QuickOrderModal } from "./QuickOrderModal";
+
 interface VisualColor {
   id: string;
   name: string;
@@ -12,12 +15,14 @@ interface VisualColor {
 
 interface ProductCommerceBlockProps {
   commerce: CommerceProduct | null;
+  productName?: string;
   visualColors: VisualColor[];
   dictionary: Dictionary["commerce"];
 }
 
 export function ProductCommerceBlock({
   commerce,
+  productName,
   visualColors,
   dictionary,
 }: ProductCommerceBlockProps) {
@@ -60,6 +65,7 @@ export function ProductCommerceBlock({
   return (
     <ActiveCommerceBlock
       commerce={commerce}
+      productName={productName || commerce.product_code}
       visualColors={visualColors}
       dictionary={dictionary}
     />
@@ -68,13 +74,17 @@ export function ProductCommerceBlock({
 
 function ActiveCommerceBlock({
   commerce,
+  productName,
   visualColors,
   dictionary,
 }: {
   commerce: CommerceProduct;
+  productName: string;
   visualColors: VisualColor[];
   dictionary: Dictionary["commerce"];
 }) {
+  const router = useRouter();
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   // 1. Извлекаем уникальные цвета из вариантов Supabase и сопоставляем с визуальными метаданными
   const colorOptions = useMemo(() => {
     const map = new Map<string, { dbColor: string; visual: VisualColor; hasAvailableStock: boolean }>();
@@ -283,6 +293,55 @@ function ActiveCommerceBlock({
           })}
         </div>
       </div>
+
+      {/* Quick Order CTA */}
+      <div className="pt-2">
+        <button
+          type="button"
+          disabled={!commerce.active || !selectedVariant || !selectedVariant.active || (selectedVariant.inventory?.available ?? 0) <= 0}
+          onClick={() => {
+            if (
+              commerce.active &&
+              selectedVariant &&
+              selectedVariant.active &&
+              (selectedVariant.inventory?.available ?? 0) > 0
+            ) {
+              setIsOrderModalOpen(true);
+            }
+          }}
+          className={`w-full py-3.5 px-6 rounded-sm font-medium text-xs tracking-wider uppercase transition-all flex items-center justify-center gap-2 ${
+            commerce.active &&
+            selectedVariant &&
+            selectedVariant.active &&
+            (selectedVariant.inventory?.available ?? 0) > 0
+              ? "bg-[var(--text-primary)] text-[var(--bg-primary)] hover:opacity-90 shadow-sm cursor-pointer"
+              : "opacity-40 cursor-not-allowed bg-[var(--bg-elevated)] text-[var(--text-muted)] border border-[var(--border-subtle)]"
+          }`}
+        >
+          {dictionary.quickOrder}
+        </button>
+      </div>
+
+      {/* Quick Order Modal */}
+      {selectedVariant && (
+        <QuickOrderModal
+          isOpen={isOrderModalOpen}
+          onClose={() => setIsOrderModalOpen(false)}
+          productName={productName}
+          price={commerce.price}
+          selectedColorName={
+            colorOptions.find((c) => c.dbColor === selectedColor)?.visual.name || selectedColor
+          }
+          selectedVariant={selectedVariant}
+          dictionary={dictionary}
+          onSuccessOrder={() => {
+            router.refresh();
+          }}
+          onStockConflict={() => {
+            router.refresh();
+          }}
+        />
+      )}
     </div>
   );
 }

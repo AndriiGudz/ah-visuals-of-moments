@@ -855,6 +855,64 @@ export async function fetchOrderById(id: string): Promise<Order | null> {
   };
 }
 
+export async function getAuthoritativeVariant(variantIdOrSku: string): Promise<{
+  variant: ProductVariant;
+  product: Product;
+  inventory?: InventoryRecord;
+} | null> {
+  const target = (variantIdOrSku || "").trim();
+  if (!target) return null;
+
+  const supabase = getSupabaseAdmin();
+  if (supabase) {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(target);
+    let query = supabase
+      .from("product_variants")
+      .select("*, product:products(*, collection:collections(*)), inventory(*)");
+
+    if (isUuid) {
+      query = query.eq("id", target);
+    } else {
+      query = query.eq("sku", target);
+    }
+
+    const { data, error } = await query.maybeSingle();
+    if (!error && data && data.product) {
+      const inv = Array.isArray(data.inventory) ? data.inventory[0] : data.inventory;
+      return {
+        variant: data as ProductVariant,
+        product: data.product as Product,
+        inventory: inv as InventoryRecord | undefined,
+      };
+    }
+  }
+
+  // Mock implementation
+  const v = mockState.variants.find(
+    (variant) => variant.id === target || variant.sku.toLowerCase() === target.toLowerCase()
+  );
+  if (!v) return null;
+
+  const p = mockState.products.find((prod) => prod.id === v.product_id);
+  if (!p) return null;
+
+  const col = p.collection_id
+    ? mockState.collections.find((c) => c.id === p.collection_id)
+    : undefined;
+  const inv = mockState.inventory.find((i) => i.variant_id === v.id);
+
+  return {
+    variant: { ...v, product: { ...p, collection: col } },
+    product: { ...p, collection: col },
+    inventory: inv
+      ? {
+          ...inv,
+          available: inv.on_hand - inv.reserved,
+        }
+      : undefined,
+  };
+}
+
 export async function createOrderWithReservation(payload: {
   order_number?: string;
   customer_name: string;
@@ -862,10 +920,10 @@ export async function createOrderWithReservation(payload: {
   customer_phone?: string;
   shipping_address?: string;
   notes?: string;
-  items: Array<{ variant_id: string; quantity: number; unit_price: number }>;
-}): Promise<{ order_id: string; order_number: string }> {
+  idempotency_key?: string;
+  items: Array<{ variant_id: string; quantity: number; unit_price?: number }>;
+}): Promise<{ order_id: string; order_number: string; total_amount?: number; idempotent?: boolean }> {
   const orderNumber = payload.order_number || `AH-${Math.floor(1000 + Math.random() * 9000)}`;
-  const totalAmount = payload.items.reduce((acc, item) => acc + item.quantity * item.unit_price, 0);
 
   const supabase = getSupabaseAdmin();
   if (supabase) {
@@ -875,28 +933,80 @@ export async function createOrderWithReservation(payload: {
       p_customer_email: payload.customer_email,
       p_customer_phone: payload.customer_phone || null,
       p_shipping_address: payload.shipping_address || null,
-      p_total_amount: totalAmount,
+      p_total_amount: 0, // Authoritative total calculated inside DB transaction
       p_notes: payload.notes || null,
       p_items: payload.items,
+      p_idempotency_key: payload.idempotency_key || null,
     });
     if (error) throw new Error(error.message);
     return data;
   }
 
-  // Mock implementation of rpc_create_order_with_reservation with strict overselling check
+  // Persistent Idempotency Check in mock implementation
+  if (payload.idempotency_key && payload.idempotency_key.trim()) {
+    const cleanKey = payload.idempotency_key.trim();
+    const existing = mockState.orders.find((o) => o.idempotency_key === cleanKey);
+    if (existing) {
+      return {
+        order_id: existing.id,
+        order_number: existing.order_number,
+        total_amount: existing.total_amount,
+        idempotent: true,
+      };
+    }
+  }
+
+  // Mock implementation of rpc_create_order_with_reservation with strict authoritative checks
+  let calculatedTotal = 0;
+  const validatedItems: Array<{
+    variant_id: string;
+    quantity: number;
+    unit_price: number;
+    variant_sku: string;
+  }> = [];
+
   for (const item of payload.items) {
     if (item.quantity <= 0) {
       throw new Error(`Некорректное количество для позиции: ${item.quantity}`);
     }
+
+    const v = mockState.variants.find((variant) => variant.id === item.variant_id);
+    if (!v) {
+      throw new Error(`Вариант товара ${item.variant_id} не найден`);
+    }
+
+    const p = mockState.products.find((prod) => prod.id === v.product_id);
+    if (!p) {
+      throw new Error("Товар не найден");
+    }
+
+    if (!p.active) {
+      throw new Error(`Товар "${p.name}" не доступен для заказа (деактивирован)`);
+    }
+
+    if (!v.active) {
+      throw new Error(`Вариант товара ${p.name} (SKU: ${v.sku}) не доступен для заказа (деактивирован)`);
+    }
+
     const inv = mockState.inventory.find((i) => i.variant_id === item.variant_id);
     if (!inv) throw new Error("Запись остатков для позиции не найдена");
     const available = inv.on_hand - inv.reserved;
     if (available < item.quantity) {
-      const v = mockState.variants.find((variant) => variant.id === item.variant_id);
       throw new Error(
         `Недостаточно доступного остатка для ${v?.sku || item.variant_id}. Доступно: ${available}, запрошено: ${item.quantity}`
       );
     }
+
+    // Authoritative unit_price strictly from product in database
+    const authoritativePrice = p.price;
+    calculatedTotal += item.quantity * authoritativePrice;
+
+    validatedItems.push({
+      variant_id: item.variant_id,
+      quantity: item.quantity,
+      unit_price: authoritativePrice,
+      variant_sku: v.sku,
+    });
   }
 
   const orderId = `ord-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -907,16 +1017,17 @@ export async function createOrderWithReservation(payload: {
     customer_email: payload.customer_email,
     customer_phone: payload.customer_phone || null,
     shipping_address: payload.shipping_address || null,
-    total_amount: totalAmount,
+    total_amount: calculatedTotal,
     status: "NEW",
     shipped_at: null,
     notes: payload.notes || null,
+    idempotency_key: payload.idempotency_key?.trim() || null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
   mockState.orders.unshift(newOrder);
 
-  for (const item of payload.items) {
+  for (const item of validatedItems) {
     const inv = mockState.inventory.find((i) => i.variant_id === item.variant_id)!;
     const reservedBefore = inv.reserved;
     inv.reserved += item.quantity;
@@ -950,7 +1061,12 @@ export async function createOrderWithReservation(payload: {
     });
   }
 
-  return { order_id: orderId, order_number: orderNumber };
+  return {
+    order_id: orderId,
+    order_number: orderNumber,
+    total_amount: calculatedTotal,
+    idempotent: false,
+  };
 }
 
 export async function updateOrderStatus(

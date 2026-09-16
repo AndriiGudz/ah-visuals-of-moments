@@ -301,7 +301,14 @@ export default function AdminOrdersPage() {
                           </div>
                         </td>
                         <td className="py-3 px-4 text-[var(--text-secondary)]">
-                          {totalQuantity} шт. ({ord.items?.length || 0} поз.)
+                          <div className="text-xs font-medium text-[var(--text-primary)]">
+                            {ord.items?.[0]?.variant?.product?.name || `${totalQuantity} шт.`}
+                          </div>
+                          {ord.items?.[0]?.variant?.sku && (
+                            <div className="text-[11px] text-[var(--text-muted)] font-mono">
+                              {ord.items[0].variant.sku} ({ord.items[0].variant.color} / {ord.items[0].variant.size})
+                            </div>
+                          )}
                         </td>
                         <td className="py-3 px-4 text-right font-bold text-[var(--text-primary)]">
                           €{ord.total_amount}

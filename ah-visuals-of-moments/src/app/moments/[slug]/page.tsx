@@ -9,6 +9,32 @@ interface NeutralMomentPageProps {
   }>;
 }
 
+function getPreferredLanguage(acceptLanguage: string | null): Locale {
+  if (!acceptLanguage) return defaultLocale;
+
+  const entries = acceptLanguage.split(",").map((part) => {
+    const [lang, qPart] = part.trim().split(";");
+    let q = 1.0;
+    if (qPart && qPart.trim().startsWith("q=")) {
+      const parsedQ = parseFloat(qPart.trim().slice(2));
+      if (!isNaN(parsedQ)) q = parsedQ;
+    }
+    return { lang: lang.toLowerCase().trim(), q };
+  });
+
+  entries.sort((a, b) => b.q - a.q);
+
+  for (const entry of entries) {
+    const primaryTag = entry.lang.split("-")[0];
+    if (primaryTag === "fr") return "fr";
+    if (primaryTag === "en") return "en";
+    if (primaryTag === "uk") return "uk";
+    if (primaryTag === "ru") return "ru";
+  }
+
+  return defaultLocale;
+}
+
 export default async function NeutralMomentPage({
   params,
 }: NeutralMomentPageProps) {
@@ -22,8 +48,8 @@ export default async function NeutralMomentPage({
 
   // 2. Detect preferred language:
   //    a) Previously chosen user language (cookie NEXT_LOCALE)
-  //    b) Browser language (Accept-Language header)
-  //    c) Fallback: English (en)
+  //    b) Browser language (Accept-Language header with q-factors)
+  //    c) Fallback: French (fr)
   let targetLocale: Locale = defaultLocale;
 
   const cookieStore = await cookies();
@@ -33,12 +59,9 @@ export default async function NeutralMomentPage({
     targetLocale = cookieLocale as Locale;
   } else {
     const headerList = await headers();
-    const acceptLanguage = headerList.get("accept-language");
-    if (acceptLanguage && acceptLanguage.toLowerCase().includes("ru")) {
-      targetLocale = "ru";
-    }
+    targetLocale = getPreferredLanguage(headerList.get("accept-language"));
   }
 
-  // 3. Redirect to localized route without creating redirect loop
+  // 3. Perform temporary (307) redirect to preserve dynamic locale negotiation
   redirect(`/${targetLocale}/moments/${slug}`);
 }

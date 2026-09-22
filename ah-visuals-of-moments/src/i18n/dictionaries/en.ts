@@ -96,7 +96,9 @@ export const en = {
   },
   languageSwitcher: {
     ariaLabel: "Select language",
+    fr: "Français",
     en: "English",
+    uk: "Українська",
     ru: "Русский",
   },
   themeSwitcher: {
@@ -104,6 +106,11 @@ export const en = {
     system: "System",
     light: "Light",
     dark: "Dark",
+  },
+  languageSuggestion: {
+    message: "This website is available in English",
+    action: "Switch",
+    dismissAria: "Dismiss language suggestion",
   },
   commerce: {
     priceLabel: "Price",

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Cormorant_Garamond } from "next/font/google";
+import { headers } from "next/headers";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL, ROBOTS_METADATA } from "@/config/site";
+import { defaultLocale, isValidLocale } from "@/i18n/config";
 import "./globals.css";
 
 const inter = Inter({
@@ -27,20 +29,25 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     url: SITE_URL,
     siteName: SITE_NAME,
-    locale: "en_US",
+    locale: "fr_FR",
     type: "website",
   },
   robots: ROBOTS_METADATA,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headerList = await headers();
+  const headerLocale = headerList.get("x-locale");
+  const lang =
+    headerLocale && isValidLocale(headerLocale) ? headerLocale : defaultLocale;
+
   return (
     <html
-      lang="en"
+      lang={lang}
       suppressHydrationWarning
       className={`${inter.variable} ${cormorant.variable}`}
     >

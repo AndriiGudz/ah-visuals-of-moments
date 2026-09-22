@@ -9,6 +9,9 @@ import { QrCodeTrigger } from "@/components/qr/QrCodeTrigger";
 import { getCommerceProductByCode } from "@/lib/supabase/server";
 import { ProductCommerceBlock } from "@/components/commerce/ProductCommerceBlock";
 
+import { getAlternateLanguages } from "@/utils/url";
+import { LOCALES_CONFIG } from "@/i18n/config";
+
 export const dynamic = "force-dynamic";
 
 interface StoryPageProps {
@@ -19,7 +22,7 @@ interface StoryPageProps {
 }
 
 export async function generateStaticParams() {
-  const publishedMoments = getPublishedMoments("en");
+  const publishedMoments = getPublishedMoments();
   const params: Array<{ locale: string; slug: string }> = [];
 
   for (const locale of locales) {
@@ -52,6 +55,7 @@ export async function generateMetadata({
 
   const title = moment.seoTitle || moment.title;
   const description = moment.seoDescription || moment.shortDescription;
+  const ogLocale = LOCALES_CONFIG[typedLocale]?.ogLocale || "fr_FR";
 
   return {
     title,
@@ -59,15 +63,13 @@ export async function generateMetadata({
     robots: ROBOTS_METADATA,
     alternates: {
       canonical: `${SITE_URL}/${typedLocale}/moments/${slug}`,
-      languages: {
-        en: `${SITE_URL}/en/moments/${slug}`,
-        ru: `${SITE_URL}/ru/moments/${slug}`,
-      },
+      languages: getAlternateLanguages(`/moments/${slug}`),
     },
     openGraph: {
       title: `${title} | AH Visuals of Moments`,
       description,
       url: `${SITE_URL}/${typedLocale}/moments/${slug}`,
+      locale: ogLocale,
       type: "article",
       images: [
         {

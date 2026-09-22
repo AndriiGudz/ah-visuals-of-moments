@@ -9,16 +9,22 @@ export const RAW_MOMENTS: RawMoment[] = [
     status: "published",
     createdAt: "2026-08-01T10:00:00.000Z",
     dateLabel: {
+      fr: "Été 2019",
       en: "Summer 2019",
+      uk: "Літо 2019",
       ru: "Лето 2019",
     },
     location: {
       city: {
+        fr: "Kyiv",
         en: "Kyiv",
+        uk: "Київ",
         ru: "Киев",
       },
       country: {
+        fr: "Ukraine",
         en: "Ukraine",
+        uk: "Україна",
         ru: "Украина",
       },
       countryCode: "UA",
@@ -33,7 +39,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       id: "AH001-main",
       src: "/moments/moment-001/moment-001-2.webp",
       alt: {
+        fr: "T-shirt unisexe AH Visuals of Moments avec impression photo du Moment 001 porté par des modèles",
         en: "AH Visuals of Moments unisex T-shirt featuring Moment 001 photograph print on models",
+        uk: "Унісекс-футболка AH Visuals of Moments із фотопринтом Моменту 001 на моделях",
         ru: "Унисекс-футболка AH Visuals of Moments с принтом Момента 001 на моделях",
       },
       width: 1280,
@@ -43,7 +51,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       id: "AH001-hero",
       src: "/moments/moment-001/moment-001-2.webp",
       alt: {
+        fr: "Présentation lookbook du t-shirt Moment 001 avec photographie de coucher de soleil à Kyiv",
         en: "Lookbook presentation of Moment 001 T-shirt featuring sunset photograph taken in Kyiv",
+        uk: "Презентація футболки Момент 001 із заходом сонця в Києві на моделях",
         ru: "Презентация футболки Момент 001 с закатной фотографией Киева на моделях",
       },
       width: 1280,
@@ -53,7 +63,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       id: "AH001-card",
       src: "/moments/moment-001/moment-001-2.webp",
       alt: {
+        fr: "Présentation du design du t-shirt Moment 001",
         en: "Moment 001 T-shirt design presentation",
+        uk: "Презентація дизайну футболки Момент 001",
         ru: "Презентация дизайна футболки Момент 001",
       },
       width: 1280,
@@ -64,7 +76,9 @@ export const RAW_MOMENTS: RawMoment[] = [
         id: "AH001-gallery-1",
         src: "/moments/moment-001/moment-001-2.webp",
         alt: {
+          fr: "Vue de face et de dos du t-shirt unisexe Moment 001 sur modèles",
           en: "Front and back view of Moment 001 unisex T-shirt on models",
+          uk: "Вигляд спереду та ззаду унісекс-футболки Момент 001 на моделях",
           ru: "Вид спереди и сзади унисекс-футболки Момент 001 на моделях",
         },
         width: 1280,
@@ -74,7 +88,9 @@ export const RAW_MOMENTS: RawMoment[] = [
         id: "AH001-gallery-2",
         src: "/moments/moment-001/moment-001-1.webp",
         alt: {
+          fr: "Aperçu des déclinaisons de couleur pour le t-shirt Moment 001",
           en: "Color variants overview for Moment 001 T-shirt",
+          uk: "Огляд колірних варіантів футболки Момент 001",
           ru: "Обзор цветовых вариантов футболки Момент 001",
         },
         width: 1280,
@@ -88,7 +104,9 @@ export const RAW_MOMENTS: RawMoment[] = [
           id: "AH001-mockup-1",
           src: "/moments/moment-001/moment-001-1.webp",
           alt: {
+            fr: "Quatre coloris de t-shirt (noir profond, taupe poudré, sable chaud, prune vintage) avec logo devant et photo de coucher de soleil au dos",
             en: "Four T-shirt color variants (black, taupe, sand, vintage plum) with front logo and back sunset photo print",
+            uk: "Чотири колірні варіанти футболки (глибокий чорний, графітово-бежевий, пісочний, винний) з логотипом спереду та принтом заходу сонця на спині",
             ru: "Четыре цветовых варианта футболки (чёрный, графитово-бежевый, песчаный, сливовый) с логотипом и принтом заката",
           },
           width: 1280,
@@ -100,7 +118,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       {
         id: "black",
         name: {
+          fr: "Noir profond",
           en: "Deep Black",
+          uk: "Глибокий чорний",
           ru: "Глубокий чёрный",
         },
         hex: "#1c1c1e",
@@ -108,7 +128,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       {
         id: "taupe",
         name: {
+          fr: "Taupe poudré",
           en: "Muted Taupe",
+          uk: "Графітово-бежевий",
           ru: "Графитово-бежевый",
         },
         hex: "#5a544f",
@@ -116,7 +138,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       {
         id: "sand",
         name: {
+          fr: "Sable chaud",
           en: "Warm Sand",
+          uk: "Теплий пісочний",
           ru: "Песчаный",
         },
         hex: "#9e8869",
@@ -124,7 +148,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       {
         id: "plum",
         name: {
+          fr: "Prune vintage",
           en: "Vintage Plum",
+          uk: "Вінтажний винний",
           ru: "Винный",
         },
         hex: "#583f4b",
@@ -135,6 +161,16 @@ export const RAW_MOMENTS: RawMoment[] = [
     externalPurchaseUrl: null,
     qrPath: "/q/AH001",
     translations: {
+      fr: {
+        title: "Moment 001",
+        shortDescription:
+          "Une soirée ordinaire s'est gravée dans les mémoires lorsque le ciel de Kyiv s'est embrasé de nuances roses, pourpres et dorées.",
+        story:
+          "Je rentrais chez moi après le travail. C'était une soirée ordinaire, semblable à tant d'autres. Je marchais le long des rues familières, absorbée par mes pensées, sans prêter attention à ce qui m'entourait. Puis, à un instant précis, j'ai levé les yeux vers le ciel.\n\nC'était saisissant. Des teintes de rose, de pourpre et d'or semblaient avoir suspendu la ville entière pendant quelques minutes. Les voitures continuaient de rouler, les passants se hâtaient vers chez eux, alors que je sortais simplement mon téléphone pour capturer cet instant.\n\nÀ cette époque, j'ignorais qu'années plus tard, cette photographie ferait partie de mon histoire. Parfois, les plus beaux moments surviennent précisément quand on s'y attend le moins.",
+        seoTitle: "Moment 001 | AH Visuals of Moments",
+        seoDescription:
+          "Découvrez l'histoire d'une photographie capturée lors d'une soirée d'été à Kyiv en 2019 et le t-shirt unisexe né de cet instant.",
+      },
       en: {
         title: "Moment 001",
         shortDescription:
@@ -144,6 +180,16 @@ export const RAW_MOMENTS: RawMoment[] = [
         seoTitle: "Moment 001 | AH Visuals of Moments",
         seoDescription:
           "Discover the story behind a summer evening photograph taken in Kyiv in 2019 and the unisex T-shirt created from that moment.",
+      },
+      uk: {
+        title: "Момент 001",
+        shortDescription:
+          "Звичайний вечір став частиною історії, коли небо над Києвом засяяло рожевими, фіолетовими та золотими відтінками.",
+        story:
+          "Я поверталася додому після роботи. Це був звичайний вечір, нічим не особливий з-поміж сотень інших. Я йшла знайомими вулицями, поринувши у власні думки, і майже не помічала того, що відбувалося довкола. Та в якусь мить підвела погляд і побачила небо.\n\nВоно було неймовірним. Рожеві, фіолетові та золоті кольори немов на кілька хвилин зупинили все місто. Машини продовжували рух, люди поспішали додому, а я просто дістала телефон і зробила цей кадр.\n\nТоді я ще не знала, що через роки ця світлина стане частиною моєї історії. Іноді найкрасивіші моменти трапляються саме тоді, коли на них зовсім не чекаєш.",
+        seoTitle: "Момент 001 | AH Visuals of Moments",
+        seoDescription:
+          "Історія фотографії літнього вечірнього неба, зробленої в Києві у 2019 році, та створеної на її основі унісекс-футболки.",
       },
       ru: {
         title: "Момент 001",
@@ -164,16 +210,22 @@ export const RAW_MOMENTS: RawMoment[] = [
     status: "published",
     createdAt: "2026-08-02T12:00:00.000Z",
     dateLabel: {
+      fr: "Été 2019",
       en: "Summer 2019",
+      uk: "Літо 2019",
       ru: "Лето 2019",
     },
     location: {
       city: {
+        fr: "Vychhorod",
         en: "Vyshhorod",
+        uk: "Вишгород",
         ru: "Вышгород",
       },
       country: {
+        fr: "Ukraine",
         en: "Ukraine",
+        uk: "Україна",
         ru: "Украина",
       },
       countryCode: "UA",
@@ -188,7 +240,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       id: "AH002-main",
       src: "/moments/moment-002/moment-002-2.webp",
       alt: {
+        fr: "T-shirt unisexe AH Visuals of Moments avec impression photo du Moment 002 porté par des modèles",
         en: "AH Visuals of Moments unisex T-shirt featuring Moment 002 photograph print on models",
+        uk: "Унісекс-футболка AH Visuals of Moments із фотопринтом Моменту 002 на моделях",
         ru: "Унисекс-футболка AH Visuals of Moments с принтом Момента 002 на моделях",
       },
       width: 1280,
@@ -198,7 +252,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       id: "AH002-hero",
       src: "/moments/moment-002/moment-002-2.webp",
       alt: {
+        fr: "Présentation lookbook du t-shirt Moment 002 avec photographie de soirée à Vychhorod",
         en: "Lookbook presentation of Moment 002 T-shirt featuring evening photograph taken in Vyshhorod",
+        uk: "Презентація футболки Момент 002 із вечірньою фотографією Вишгорода на моделях",
         ru: "Презентация футболки Момент 002 с вечерней фотографией Вышгорода на моделях",
       },
       width: 1280,
@@ -208,7 +264,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       id: "AH002-card",
       src: "/moments/moment-002/moment-002-2.webp",
       alt: {
+        fr: "Présentation du design du t-shirt Moment 002",
         en: "Moment 002 T-shirt design presentation",
+        uk: "Презентація дизайну футболки Момент 002",
         ru: "Презентация дизайна футболки Момент 002",
       },
       width: 1280,
@@ -219,7 +277,9 @@ export const RAW_MOMENTS: RawMoment[] = [
         id: "AH002-gallery-1",
         src: "/moments/moment-002/moment-002-2.webp",
         alt: {
+          fr: "Vue de face et de dos du t-shirt unisexe Moment 002 sur modèles",
           en: "Front and back view of Moment 002 unisex T-shirt on models",
+          uk: "Вигляд спереду та ззаду унісекс-футболки Момент 002 на моделях",
           ru: "Вид спереди и сзади унисекс-футболки Момент 002 на моделях",
         },
         width: 1280,
@@ -229,7 +289,9 @@ export const RAW_MOMENTS: RawMoment[] = [
         id: "AH002-gallery-2",
         src: "/moments/moment-002/moment-002-1.webp",
         alt: {
+          fr: "Aperçu des déclinaisons de couleur pour le t-shirt Moment 002",
           en: "Color variants overview for Moment 002 T-shirt",
+          uk: "Огляд колірних варіантів футболки Момент 002",
           ru: "Обзор цветовых вариантов футболки Момент 002",
         },
         width: 1280,
@@ -243,7 +305,9 @@ export const RAW_MOMENTS: RawMoment[] = [
           id: "AH002-mockup-1",
           src: "/moments/moment-002/moment-002-1.webp",
           alt: {
+            fr: "Quatre déclinaisons de couleur avec logo devant et photo de soirée au dos",
             en: "Four T-shirt color variants with front logo and back evening photo print",
+            uk: "Чотири колірні варіанти футболки з логотипом спереду та вечірнім фотопринтом на спині",
             ru: "Четыре цветовых варианта футболки с логотипом и принтом заката",
           },
           width: 1280,
@@ -255,7 +319,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       {
         id: "black",
         name: {
+          fr: "Noir profond",
           en: "Deep Black",
+          uk: "Глибокий чорний",
           ru: "Глубокий чёрный",
         },
         hex: "#1c1c1e",
@@ -263,7 +329,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       {
         id: "taupe",
         name: {
+          fr: "Taupe poudré",
           en: "Muted Taupe",
+          uk: "Графітово-бежевий",
           ru: "Графитово-бежевый",
         },
         hex: "#5a544f",
@@ -271,7 +339,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       {
         id: "sand",
         name: {
+          fr: "Sable chaud",
           en: "Warm Sand",
+          uk: "Теплий пісочний",
           ru: "Песчаный",
         },
         hex: "#9e8869",
@@ -279,7 +349,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       {
         id: "plum",
         name: {
+          fr: "Prune vintage",
           en: "Vintage Plum",
+          uk: "Вінтажний винний",
           ru: "Винный",
         },
         hex: "#583f4b",
@@ -290,6 +362,16 @@ export const RAW_MOMENTS: RawMoment[] = [
     externalPurchaseUrl: null,
     qrPath: "/q/AH002",
     translations: {
+      fr: {
+        title: "Moment 002",
+        shortDescription:
+          "Une attente ordinaire est devenue un souvenir durable lorsqu'une douce soirée d'été à Vychhorod a teinté le ciel d'or et de rose.",
+        story:
+          "C'était une douce soirée d'été à Vychhorod. J'étais assise devant la maison en attendant un ami. Il me suffisait de sonner à l'interphone pour qu'il descende, mais à la place, je me suis simplement arrêtée quelques minutes.\n\nIl n'y avait presque personne dans la rue calme. Tout semblait serein. Rien que la douceur de l'air vespéral, les derniers reflets du soleil et le ciel qui se nuançait peu à peu de rose et d'or. J'ai réalisé que cet instant ne durerait que quelques minutes, alors j'ai sorti mon téléphone et j'ai pris cette photo.\n\nEn la regardant aujourd'hui, je me souviens non seulement de ce magnifique coucher de soleil, mais aussi du profond apaisement de cette soirée. Parfois, il ne faut rien d'extraordinaire pour qu'un instant devienne un précieux souvenir. Ce sont sans doute ces soirées paisibles qui restent le plus longtemps en nous.",
+        seoTitle: "Moment 002 | AH Visuals of Moments",
+        seoDescription:
+          "Découvrez l'histoire d'une photographie de soirée d'été prise à Vychhorod en 2019 et le t-shirt conçu à partir de cet instant.",
+      },
       en: {
         title: "Moment 002",
         shortDescription:
@@ -299,6 +381,16 @@ export const RAW_MOMENTS: RawMoment[] = [
         seoTitle: "Moment 002 | AH Visuals of Moments",
         seoDescription:
           "Discover the story behind a summer evening photograph taken in Vyshhorod in 2019 and the T-shirt created from that moment.",
+      },
+      uk: {
+        title: "Момент 002",
+        shortDescription:
+          "Звичайне очікування перетворилося на спогад, коли теплий літній вечір у Вишгороді забарвив небо в рожеві та золоті тони.",
+        story:
+          "Це був теплий літній вечір у Вишгороді. Я сиділа біля будинку й чекала на друга. Треба було просто зателефонувати в домофон, щоб він вийшов, але натомість я на кілька хвилин просто завмерла.\n\nНа тихій вулиці майже нікого не було. Усе навколо дихало спокоєм. Лише легке вечірнє повітря, останні промені сонця і небо, що повільно набувало рожевих та золотих відтінків. Я відчула, що ця мить триватиме лічені хвилини. Тому дістала телефон і зробила цю фотографію.\n\nКоли дивлюся на неї зараз, згадую не лише цей красивий захід сонця, а й той глибокий спокій, яким був сповнений той вечір. Іноді не потрібно нічого надзвичайного, аби мить стала дорогим серцю спогадом. Напевно, саме такі тихі вечори залишаються з нами найдовше.",
+        seoTitle: "Момент 002 | AH Visuals of Moments",
+        seoDescription:
+          "Історія фотографії літнього вечора у Вишгороді, зробленої у 2019 році, та створеної на її основі унісекс-футболки.",
       },
       ru: {
         title: "Момент 002",
@@ -319,16 +411,22 @@ export const RAW_MOMENTS: RawMoment[] = [
     status: "published",
     createdAt: "2026-08-03T15:00:00.000Z",
     dateLabel: {
+      fr: "Été 2019",
       en: "Summer 2019",
+      uk: "Літо 2019",
       ru: "Лето 2019",
     },
     location: {
       city: {
+        fr: "Vychhorod (quai Chaïka)",
         en: "Vyshhorod (Chaika Embankment)",
+        uk: "Вишгород (набережна «Чайка»)",
         ru: "Вышгород (набережная «Чайка»)",
       },
       country: {
+        fr: "Ukraine",
         en: "Ukraine",
+        uk: "Україна",
         ru: "Украина",
       },
       countryCode: "UA",
@@ -343,7 +441,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       id: "AH003-main",
       src: "/moments/moment-003/moment-003-2.webp",
       alt: {
+        fr: "T-shirt unisexe AH Visuals of Moments avec impression photo du Moment 003 porté par des modèles",
         en: "AH Visuals of Moments unisex T-shirt featuring Moment 003 photograph print on models",
+        uk: "Унісекс-футболка AH Visuals of Moments із фотопринтом Моменту 003 на моделях",
         ru: "Унисекс-футболка AH Visuals of Moments с принтом Момента 003 на моделях",
       },
       width: 1280,
@@ -353,7 +453,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       id: "AH003-hero",
       src: "/moments/moment-003/moment-003-2.webp",
       alt: {
+        fr: "Présentation lookbook du t-shirt Moment 003 avec coucher de soleil au quai Chaïka",
         en: "Lookbook presentation of Moment 003 T-shirt featuring sunset photograph taken at Chaika Embankment",
+        uk: "Презентація футболки Момент 003 із заходом сонця на набережній «Чайка» на моделях",
         ru: "Презентация футболки Момент 003 с закатом на набережной «Чайка» на моделях",
       },
       width: 1280,
@@ -363,7 +465,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       id: "AH003-card",
       src: "/moments/moment-003/moment-003-2.webp",
       alt: {
+        fr: "Présentation du design du t-shirt Moment 003",
         en: "Moment 003 T-shirt design presentation",
+        uk: "Презентація дизайну футболки Момент 003",
         ru: "Презентация дизайна футболки Момент 003",
       },
       width: 1280,
@@ -374,7 +478,9 @@ export const RAW_MOMENTS: RawMoment[] = [
         id: "AH003-gallery-1",
         src: "/moments/moment-003/moment-003-2.webp",
         alt: {
+          fr: "Vue de face et de dos du t-shirt unisexe Moment 003 sur modèles",
           en: "Front and back view of Moment 003 unisex T-shirt on models",
+          uk: "Вигляд спереду та ззаду унісекс-футболки Момент 003 на моделях",
           ru: "Вид спереди и сзади унисекс-футболки Момент 003 на моделях",
         },
         width: 1280,
@@ -384,7 +490,9 @@ export const RAW_MOMENTS: RawMoment[] = [
         id: "AH003-gallery-2",
         src: "/moments/moment-003/moment-003-1.webp",
         alt: {
+          fr: "Aperçu des déclinaisons de couleur pour le t-shirt Moment 003",
           en: "Color variants overview for Moment 003 T-shirt",
+          uk: "Огляд колірних варіантів футболки Момент 003",
           ru: "Обзор цветовых вариантов футболки Момент 003",
         },
         width: 1280,
@@ -398,7 +506,9 @@ export const RAW_MOMENTS: RawMoment[] = [
           id: "AH003-mockup-1",
           src: "/moments/moment-003/moment-003-1.webp",
           alt: {
+            fr: "Quatre déclinaisons de couleur avec logo devant et photo de coucher de soleil au dos",
             en: "Four T-shirt color variants with front logo and back sunset photo print",
+            uk: "Чотири колірні варіанти футболки з логотипом спереду та фотопринтом заходу сонця на спині",
             ru: "Четыре цветовых варианта футболки с логотипом и принтом заката",
           },
           width: 1280,
@@ -410,7 +520,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       {
         id: "black",
         name: {
+          fr: "Noir profond",
           en: "Deep Black",
+          uk: "Глибокий чорний",
           ru: "Глубокий чёрный",
         },
         hex: "#1c1c1e",
@@ -418,7 +530,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       {
         id: "taupe",
         name: {
+          fr: "Taupe poudré",
           en: "Muted Taupe",
+          uk: "Графітово-бежевий",
           ru: "Графитово-бежевый",
         },
         hex: "#5a544f",
@@ -426,7 +540,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       {
         id: "sand",
         name: {
+          fr: "Sable chaud",
           en: "Warm Sand",
+          uk: "Теплий пісочний",
           ru: "Песчаный",
         },
         hex: "#9e8869",
@@ -434,7 +550,9 @@ export const RAW_MOMENTS: RawMoment[] = [
       {
         id: "plum",
         name: {
+          fr: "Prune vintage",
           en: "Vintage Plum",
+          uk: "Вінтажний винний",
           ru: "Винный",
         },
         hex: "#583f4b",
@@ -445,6 +563,16 @@ export const RAW_MOMENTS: RawMoment[] = [
     externalPurchaseUrl: null,
     qrPath: "/q/AH003",
     translations: {
+      fr: {
+        title: "Moment 003",
+        shortDescription:
+          "Coucher de soleil sur le fleuve Dnipro au quai Chaïka — un havre de paix où l'on revient pour contempler et se ressourcer.",
+        story:
+          "Ce lieu a toujours eu une résonance particulière pour moi. Le quai Chaïka à Vychhorod est un endroit où je revenais inlassablement pour contempler le crépuscule. Non pas parce que chaque soirée était différente, mais parce qu'aucun coucher de soleil n'y était jamais semblable à un autre.\n\nJe pouvais rester assise au bord de l'eau, à regarder le soleil disparaître lentement sous l'horizon tandis que le Dnipro reflétait ses derniers éclats de lumière. Dans ces instants, le temps semblait suspendu.\n\nJ'ai souvent tenté d'immortaliser cette beauté à travers l'objectif. Aucune photographie ne peut égaler ce que le regard a ressenti, mais chacune conserve l'émotion exacte de cet instant. C'est pourquoi ce cliché a rejoint ma collection. Pour certains, ce n'est qu'un beau coucher de soleil. Pour moi, c'est l'endroit où j'ai toujours désiré revenir.",
+        seoTitle: "Moment 003 | AH Visuals of Moments",
+        seoDescription:
+          "Découvrez l'histoire d'un coucher de soleil photographié au quai Chaïka à Vychhorod et le t-shirt unisexe né de cet instant.",
+      },
       en: {
         title: "Moment 003",
         shortDescription:
@@ -454,6 +582,16 @@ export const RAW_MOMENTS: RawMoment[] = [
         seoTitle: "Moment 003 | AH Visuals of Moments",
         seoDescription:
           "Discover the story behind a sunset photograph taken at Chaika Embankment in Vyshhorod and the T-shirt created from that moment.",
+      },
+      uk: {
+        title: "Момент 003",
+        shortDescription:
+          "Захід сонця над Дніпром на набережній «Чайка» — місце, куди завжди хочеться повертатися за внутрішнім спокоєм.",
+        story:
+          "Це місце завжди було для мене особливим. Набережна «Чайка» у Вишгороді — простір, куди я знову і знову приходила проводжати сонце. Не тому, що кожен вечір був якимось іншим, а тому, що однакових заходів сонця тут просто ніколи не існувало.\n\nЯ могла годинами сидіти біля води, спостерігаючи, як сонце повільно занурюється за обрій, а Дніпро віддзеркалює останні промені світла. У такі хвилини здавалося, ніби час зупинився.\n\nЯ багато разів намагалася вловити цю красу через об'єктив камери. Жодна світлина не здатна повністю передати те, що бачили очі, але кожна з них береже відчуття, яке я переживала в ту саму мить. Саме тому цей кадр став частиною моєї колекції. Для когось це просто гарний захід сонця. Для мене — місце, куди завжди хотілося повертатися.",
+        seoTitle: "Момент 003 | AH Visuals of Moments",
+        seoDescription:
+          "Історія фотографії заходу сонця на набережній «Чайка» у Вишгороді та створеної на її основі унісекс-футболки.",
       },
       ru: {
         title: "Момент 003",
@@ -590,4 +728,3 @@ export function getMomentByProductCode(
 export function getAllMoments(locale: Locale = defaultLocale): Moment[] {
   return RAW_MOMENTS.map((m) => resolveMoment(m, locale));
 }
-

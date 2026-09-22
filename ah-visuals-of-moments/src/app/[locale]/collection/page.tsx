@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { isValidLocale, Locale } from "@/i18n/config";
+import { isValidLocale, Locale, LOCALES_CONFIG } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
 import { getPublishedMoments } from "@/data/moments";
 import { SITE_URL, ROBOTS_METADATA } from "@/config/site";
+import { getAlternateLanguages } from "@/utils/url";
 import MomentGrid from "@/components/MomentGrid";
 
 interface CollectionPageProps {
@@ -18,23 +19,23 @@ export async function generateMetadata({
   const { locale } = await params;
   if (!isValidLocale(locale)) return {};
 
-  const dict = getDictionary(locale as Locale);
+  const typedLocale = locale as Locale;
+  const dict = getDictionary(typedLocale);
+  const ogLocale = LOCALES_CONFIG[typedLocale]?.ogLocale || "fr_FR";
 
   return {
     title: dict.collection.title,
     description: dict.collection.description,
     robots: ROBOTS_METADATA,
     alternates: {
-      canonical: `${SITE_URL}/${locale}/collection`,
-      languages: {
-        en: `${SITE_URL}/en/collection`,
-        ru: `${SITE_URL}/ru/collection`,
-      },
+      canonical: `${SITE_URL}/${typedLocale}/collection`,
+      languages: getAlternateLanguages("/collection"),
     },
     openGraph: {
       title: `${dict.collection.title} | AH Visuals of Moments`,
       description: dict.collection.description,
-      url: `${SITE_URL}/${locale}/collection`,
+      url: `${SITE_URL}/${typedLocale}/collection`,
+      locale: ogLocale,
       type: "website",
     },
   };

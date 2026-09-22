@@ -64,7 +64,9 @@ export interface RawMoment {
   availableSizes: TShirtSize[];
   videoUrl: string | null;
   externalPurchaseUrl: string | null;
+  qrId: string;
   qrPath: string;
+  isIndexable: boolean;
   translations: Record<Locale, MomentTranslation>;
 }
 
@@ -139,5 +141,7 @@ export interface Moment {
   dateLabel: string;
   videoUrl: string | null;
   externalPurchaseUrl: string | null;
+  qrId: string;
   qrPath: string;
+  isIndexable: boolean;
 }

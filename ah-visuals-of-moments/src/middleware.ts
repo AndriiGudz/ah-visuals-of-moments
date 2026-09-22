@@ -90,9 +90,13 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 4. Preserve neutral permanent QR code route (/moments and /moments/*)
-  // Controlled temporary redirect logic is executed inside app/moments/[slug]/page.tsx
-  if (pathname.startsWith("/moments/")) {
+  // 4. Preserve neutral permanent QR code routes (/q/*) and utility (/moments/*)
+  // Controlled temporary redirect logic is executed inside app/q/[id]/route.ts and app/moments/[slug]/page.tsx
+  if (
+    pathname.startsWith("/moments/") ||
+    pathname.startsWith("/q/") ||
+    pathname === "/q"
+  ) {
     return NextResponse.next();
   }
 

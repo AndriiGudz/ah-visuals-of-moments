@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { locales, isValidLocale, Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
 import { getMomentBySlug, getPublishedMoments } from "@/data/moments";
-import { SITE_URL, ROBOTS_METADATA } from "@/config/site";
+import { SITE_URL, ALLOW_INDEXING, ROBOTS_METADATA } from "@/config/site";
 import { QrCodeTrigger } from "@/components/qr/QrCodeTrigger";
 import { getCommerceProductByCode } from "@/lib/supabase/server";
 import { ProductCommerceBlock } from "@/components/commerce/ProductCommerceBlock";
@@ -57,10 +57,23 @@ export async function generateMetadata({
   const description = moment.seoDescription || moment.shortDescription;
   const ogLocale = LOCALES_CONFIG[typedLocale]?.ogLocale || "fr_FR";
 
+  const isPageSearchable =
+    ALLOW_INDEXING &&
+    moment.status === "published" &&
+    moment.isIndexable === true;
+
+  const robots = isPageSearchable
+    ? { index: true, follow: true }
+    : {
+        index: false,
+        follow: true,
+        ...(ALLOW_INDEXING ? {} : { nocache: true }),
+      };
+
   return {
     title,
     description,
-    robots: ROBOTS_METADATA,
+    robots,
     alternates: {
       canonical: `${SITE_URL}/${typedLocale}/moments/${slug}`,
       languages: getAlternateLanguages(`/moments/${slug}`),
@@ -253,7 +266,7 @@ export default async function MomentStoryPage({ params }: StoryPageProps) {
               <p className="text-xs text-[var(--text-secondary)]">
                 Route:{" "}
                 <code className="text-[var(--accent-warm)] font-mono">
-                  /moments/{moment.slug}
+                  {moment.qrPath}
                 </code>
               </p>
             </div>
@@ -261,6 +274,7 @@ export default async function MomentStoryPage({ params }: StoryPageProps) {
               <QrCodeTrigger
                 momentTitle={moment.title}
                 momentSlug={moment.slug}
+                qrPath={moment.qrPath}
                 siteUrl={SITE_URL}
                 dictionary={dictionary.qr}
               />

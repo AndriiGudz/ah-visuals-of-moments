@@ -6,6 +6,7 @@ import { QrCodeModal } from "./QrCodeModal";
 interface QrCodeTriggerProps {
   momentTitle: string;
   momentSlug: string;
+  qrPath: string;
   siteUrl: string;
   dictionary: {
     viewQr: string;
@@ -23,15 +24,17 @@ interface QrCodeTriggerProps {
 export function QrCodeTrigger({
   momentTitle,
   momentSlug,
+  qrPath,
   siteUrl,
   dictionary,
 }: QrCodeTriggerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  // Build stable neutral URL encoded inside QR code: SITE_URL + /moments/[slug]
+  // Build stable neutral permanent URL encoded inside QR code: SITE_URL + /q/[id]
   const formattedSiteUrl = siteUrl.replace(/\/$/, "");
-  const qrUrl = `${formattedSiteUrl}/moments/${momentSlug}`;
+  const cleanQrPath = qrPath.startsWith("/") ? qrPath : `/${qrPath}`;
+  const qrUrl = `${formattedSiteUrl}${cleanQrPath}`;
 
   return (
     <>

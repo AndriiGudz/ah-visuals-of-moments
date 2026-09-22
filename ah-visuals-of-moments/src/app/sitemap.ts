@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
-import { getPublishedMoments } from "@/data/moments";
+import { getIndexableMoments } from "@/data/moments";
 import { SITE_URL } from "@/config/site";
 import { locales } from "@/i18n/config";
 import { getAlternateLanguages } from "@/utils/url";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const publishedMoments = getPublishedMoments();
+  const indexableMoments = getIndexableMoments();
 
   const staticPaths = ["", "/collection", "/about", "/contact"];
 
@@ -32,7 +32,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const momentEntries: MetadataRoute.Sitemap = [];
 
-  for (const moment of publishedMoments) {
+  for (const moment of indexableMoments) {
     const momentNeutralPath = `/moments/${moment.slug}`;
     const alternatesLanguages = getAlternateLanguages(momentNeutralPath);
 

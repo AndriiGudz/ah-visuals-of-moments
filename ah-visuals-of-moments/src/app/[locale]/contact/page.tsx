@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { isValidLocale, Locale } from "@/i18n/config";
+import { isValidLocale, Locale, LOCALES_CONFIG } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
 import { SITE_URL, ROBOTS_METADATA } from "@/config/site";
+import { getAlternateLanguages } from "@/utils/url";
 
 interface ContactPageProps {
   params: Promise<{
@@ -16,23 +17,23 @@ export async function generateMetadata({
   const { locale } = await params;
   if (!isValidLocale(locale)) return {};
 
-  const dict = getDictionary(locale as Locale);
+  const typedLocale = locale as Locale;
+  const dict = getDictionary(typedLocale);
+  const ogLocale = LOCALES_CONFIG[typedLocale]?.ogLocale || "fr_FR";
 
   return {
     title: dict.contact.title,
     description: dict.contact.subtitle,
     robots: ROBOTS_METADATA,
     alternates: {
-      canonical: `${SITE_URL}/${locale}/contact`,
-      languages: {
-        en: `${SITE_URL}/en/contact`,
-        ru: `${SITE_URL}/ru/contact`,
-      },
+      canonical: `${SITE_URL}/${typedLocale}/contact`,
+      languages: getAlternateLanguages("/contact"),
     },
     openGraph: {
       title: `${dict.contact.title} | AH Visuals of Moments`,
       description: dict.contact.subtitle,
-      url: `${SITE_URL}/${locale}/contact`,
+      url: `${SITE_URL}/${typedLocale}/contact`,
+      locale: ogLocale,
       type: "website",
     },
   };

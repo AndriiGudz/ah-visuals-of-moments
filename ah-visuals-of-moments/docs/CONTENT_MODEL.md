@@ -367,7 +367,8 @@ export interface ProductColor {
 
 ```ts
 export interface QrData {
-  path: string;
+  qrId: string; // Permanent immutable identifier (e.g. "AH001")
+  path: string; // Permanent route, e.g. "/q/AH001"
   downloadFileName: string;
   enabled: boolean;
 }
@@ -377,6 +378,7 @@ export interface QrData {
 
 ```ts
 const qr: QrData = {
+  qrId: "AH001",
   path: "/q/AH001",
   downloadFileName: "AH001-summer-evening-kyiv",
   enabled: true,
@@ -385,46 +387,39 @@ const qr: QrData = {
 
 ### QR rules
 
-- QR codes must point to the permanent route `/q/[id]`.
-- QR codes must not point directly to `/[locale]/stories/[slug]`.
-- The route resolves the current story slug.
-- The route detects the preferred browser language.
-- Unsupported or unavailable languages fall back to English.
-- Use a temporary redirect.
+- Production domain: `https://ah-visuals.com`.
+- QR codes must point to the permanent route `https://ah-visuals.com/q/[qrId]`.
+- QR codes must not point directly to `/[locale]/moments/[slug]` or `/moments/[slug]`.
+- The `/q/[qrId]` route strictly looks up the story by its immutable `qrId` (`AH001`).
+- The route detects the preferred browser language (cookie `NEXT_LOCALE` → `Accept-Language` → `defaultLocale`).
+- The route issues a `307 Temporary Redirect` to the canonical story page.
+- Unknown QR IDs return HTTP 404 (no soft 404, no redirect to home).
 - SVG is the preferred downloadable format.
-- PNG may be provided as an additional format.
-- Future scan analytics may be added at the QR route level.
+- PNG (2048x2048 px) is provided as an additional format.
 
 ---
 
-## 11. SEO metadata
+## 11. SEO & Indexability model
 
 ```ts
 export interface SeoMetadata {
-  title: string;
+  title: string; // Clean story title (brand suffix applied via template)
   description: string;
   image?: string;
-  noIndex?: boolean;
+  isIndexable: boolean; // Explicit search indexability control
 }
 ```
 
 ### Rules
 
-Each published story should have localized:
-
-- page title;
-- meta description;
-- Open Graph title;
-- Open Graph description;
-- Open Graph image;
-- canonical URL;
-- alternate-language links.
-
-The public page should also include structured data where appropriate.
+- Story indexability is determined jointly: `ALLOW_INDEXING && status === "published" && isIndexable === true`.
+- If `isIndexable === false` or `status === "archived"`: page returns `HTTP 200` with `<meta name="robots" content="noindex, follow">`.
+- Only stories with `status === "published" && isIndexable === true` are included in `sitemap.xml`.
+- Each published story should have localized page title, meta description, Open Graph, canonical URL, and alternate hreflang links.
 
 ---
 
-## 12. Content status
+## 12. Content status & Lifecycle
 
 ```ts
 export type ContentStatus =
@@ -434,22 +429,20 @@ export type ContentStatus =
   | "archived";
 ```
 
-### Meaning
+### Meaning & Lifecycle Matrix
 
-- `draft` — incomplete and not publicly available.
-- `review` — ready for content or translation review.
-- `published` — available publicly and included in navigation and sitemap.
-- `archived` — removed from regular navigation but retained for stable QR compatibility.
+| Status | isIndexable | Direct URL | /q/[qrId] | Sitemap | Collection Grid | Robots |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| `draft` | false | 404 | 404 | No | No | N/A |
+| `review` | false | 404 | 404 | No | No | N/A |
+| `published` | true | 200 | 307 → 200 | **Yes** | **Yes** | index, follow |
+| `published` | false | 200 | 307 → 200 | No | **Yes** | noindex, follow |
+| `archived` | false | 200 | 307 → 200 | No | No | noindex, follow |
 
 ### Important rule
 
-An archived story with an already printed QR code must not return a broken page.
-
-It should either:
-
-- remain accessible;
-- redirect to an archive page;
-- redirect to a replacement story approved by the owner.
+`archived` ≠ `deleted`.
+An archived story with an already printed QR code must remain accessible at `HTTP 200` via its direct URL and `/q/[qrId]`, but is excluded from public search indexation (`noindex, follow`), sitemaps, and the public Collection showcase.
 
 ---
 

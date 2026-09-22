@@ -4,8 +4,15 @@ import { notFound } from "next/navigation";
 import { locales, isValidLocale, Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
 import { getMomentBySlug, getPublishedMoments } from "@/data/moments";
-import { SITE_URL, ROBOTS_METADATA } from "@/config/site";
+import { SITE_URL, ALLOW_INDEXING, ROBOTS_METADATA } from "@/config/site";
 import { QrCodeTrigger } from "@/components/qr/QrCodeTrigger";
+import { getCommerceProductByCode } from "@/lib/supabase/server";
+import { ProductCommerceBlock } from "@/components/commerce/ProductCommerceBlock";
+
+import { getAlternateLanguages } from "@/utils/url";
+import { LOCALES_CONFIG } from "@/i18n/config";
+
+export const dynamic = "force-dynamic";
 
 interface StoryPageProps {
   params: Promise<{
@@ -15,7 +22,7 @@ interface StoryPageProps {
 }
 
 export async function generateStaticParams() {
-  const publishedMoments = getPublishedMoments("en");
+  const publishedMoments = getPublishedMoments();
   const params: Array<{ locale: string; slug: string }> = [];
 
   for (const locale of locales) {
@@ -48,22 +55,34 @@ export async function generateMetadata({
 
   const title = moment.seoTitle || moment.title;
   const description = moment.seoDescription || moment.shortDescription;
+  const ogLocale = LOCALES_CONFIG[typedLocale]?.ogLocale || "fr_FR";
+
+  const isPageSearchable =
+    ALLOW_INDEXING &&
+    moment.status === "published" &&
+    moment.isIndexable === true;
+
+  const robots = isPageSearchable
+    ? { index: true, follow: true }
+    : {
+        index: false,
+        follow: true,
+        ...(ALLOW_INDEXING ? {} : { nocache: true }),
+      };
 
   return {
     title,
     description,
-    robots: ROBOTS_METADATA,
+    robots,
     alternates: {
       canonical: `${SITE_URL}/${typedLocale}/moments/${slug}`,
-      languages: {
-        en: `${SITE_URL}/en/moments/${slug}`,
-        ru: `${SITE_URL}/ru/moments/${slug}`,
-      },
+      languages: getAlternateLanguages(`/moments/${slug}`),
     },
     openGraph: {
       title: `${title} | AH Visuals of Moments`,
       description,
       url: `${SITE_URL}/${typedLocale}/moments/${slug}`,
+      locale: ogLocale,
       type: "article",
       images: [
         {
@@ -90,6 +109,7 @@ export default async function MomentStoryPage({ params }: StoryPageProps) {
     notFound();
   }
 
+  const commerce = await getCommerceProductByCode(moment.productCode);
   const heroImage = moment.heroImage || moment.mainImage;
 
   return (
@@ -223,56 +243,13 @@ export default async function MomentStoryPage({ params }: StoryPageProps) {
           </div>
         )}
 
-        {/* Colors & Sizes metadata */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-[var(--bg-surface)] border border-[var(--border-subtle)] p-6 rounded-sm">
-          <div>
-            <h3 className="text-xs uppercase tracking-wider text-[var(--text-secondary)] font-mono mb-2">
-              {dictionary.story.availableColors}
-            </h3>
-            {moment.availableColors.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {moment.availableColors.map((color) => (
-                  <span
-                    key={color.id}
-                    className="inline-flex items-center gap-2 text-xs bg-[var(--bg-elevated)] border border-[var(--border-subtle)] px-3 py-1.5 rounded-sm text-[var(--text-primary)]"
-                  >
-                    <span
-                      className="w-2.5 h-2.5 rounded-full border border-[var(--border-highlight)]"
-                      style={{ backgroundColor: color.hex }}
-                    />
-                    {color.name}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <span className="text-xs text-[var(--text-muted)]">
-                {dictionary.story.toBeAnnounced}
-              </span>
-            )}
-          </div>
-
-          <div>
-            <h3 className="text-xs uppercase tracking-wider text-[var(--text-secondary)] font-mono mb-2">
-              {dictionary.story.availableSizes}
-            </h3>
-            {moment.availableSizes.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {moment.availableSizes.map((size) => (
-                  <span
-                    key={size}
-                    className="text-xs bg-[var(--bg-elevated)] border border-[var(--border-subtle)] px-3 py-1.5 rounded-sm text-[var(--text-primary)] font-mono"
-                  >
-                    {size}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <span className="text-xs text-[var(--text-muted)]">
-                {dictionary.story.toBeAnnounced}
-              </span>
-            )}
-          </div>
-        </div>
+        {/* Live Commerce Layer: Live Price, Color & Size Availability from Supabase */}
+        <ProductCommerceBlock
+          commerce={commerce}
+          productName={moment.title}
+          visualColors={moment.availableColors}
+          dictionary={dictionary.commerce}
+        />
       </section>
 
       {/* Reserved Future Extensions Section */}
@@ -289,7 +266,7 @@ export default async function MomentStoryPage({ params }: StoryPageProps) {
               <p className="text-xs text-[var(--text-secondary)]">
                 Route:{" "}
                 <code className="text-[var(--accent-warm)] font-mono">
-                  /moments/{moment.slug}
+                  {moment.qrPath}
                 </code>
               </p>
             </div>
@@ -297,6 +274,7 @@ export default async function MomentStoryPage({ params }: StoryPageProps) {
               <QrCodeTrigger
                 momentTitle={moment.title}
                 momentSlug={moment.slug}
+                qrPath={moment.qrPath}
                 siteUrl={SITE_URL}
                 dictionary={dictionary.qr}
               />

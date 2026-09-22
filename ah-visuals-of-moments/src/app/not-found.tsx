@@ -34,13 +34,13 @@ export default function RootNotFound() {
         {/* Actions */}
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
-            href="/en/collection"
+            href={`/${defaultLocale}/collection`}
             className="w-full sm:w-auto inline-flex items-center justify-center bg-[var(--text-primary)] text-[var(--bg-primary)] border border-[var(--text-primary)] hover:opacity-90 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider transition-opacity rounded-sm shadow-xs focus-visible:outline-2 focus-visible:outline-[var(--text-primary)] focus-visible:outline-offset-2"
           >
             {dictionary.notFound.button}
           </Link>
           <Link
-            href="/en"
+            href={`/${defaultLocale}`}
             className="w-full sm:w-auto inline-flex items-center justify-center bg-[var(--bg-elevated)] text-[var(--text-primary)] border border-[var(--border-highlight)] hover:border-[var(--text-primary)] px-6 py-2.5 text-xs font-semibold uppercase tracking-wider transition-colors rounded-sm shadow-xs focus-visible:outline-2 focus-visible:outline-[var(--text-primary)] focus-visible:outline-offset-2"
           >
             {dictionary.notFound.homeButton}

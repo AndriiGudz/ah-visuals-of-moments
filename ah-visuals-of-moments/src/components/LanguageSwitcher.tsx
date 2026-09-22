@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Locale, locales } from "@/i18n/config";
-import { getLocalizedUrl } from "@/utils/url";
+import { Locale, locales, LOCALES_CONFIG } from "@/i18n/config";
+import { getLocalizedUrl, setLocaleCookie } from "@/utils/url";
 import { Dictionary } from "@/i18n/dictionaries/en";
 
 interface LanguageSwitcherProps {
@@ -16,7 +16,7 @@ export default function LanguageSwitcher({
   currentLocale,
   dictionary,
 }: LanguageSwitcherProps) {
-  const pathname = usePathname();
+  const pathname = usePathname() || "";
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -48,6 +48,13 @@ export default function LanguageSwitcher({
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  const handleSelectLocale = (loc: Locale) => {
+    setLocaleCookie(loc);
+    setIsOpen(false);
+  };
+
+  const triggerLabel = LOCALES_CONFIG[currentLocale]?.shortLabel || currentLocale.toUpperCase();
 
   return (
     <div ref={containerRef} className="relative inline-block text-left">
@@ -88,7 +95,7 @@ export default function LanguageSwitcher({
         </svg>
 
         <span className="uppercase font-semibold tracking-wider">
-          {currentLocale}
+          {triggerLabel}
         </span>
 
         {/* Chevron Arrow */}
@@ -118,13 +125,14 @@ export default function LanguageSwitcher({
           {locales.map((loc) => {
             const isActive = loc === currentLocale;
             const targetUrl = getLocalizedUrl(pathname, loc);
-            const label = dictionary[loc] || loc.toUpperCase();
+            const label = dictionary[loc] || LOCALES_CONFIG[loc]?.label || loc.toUpperCase();
+            const shortCode = LOCALES_CONFIG[loc]?.shortLabel || loc.toUpperCase();
 
             return (
               <Link
                 key={loc}
                 href={targetUrl}
-                onClick={() => setIsOpen(false)}
+                onClick={() => handleSelectLocale(loc)}
                 className={`flex items-center justify-between px-3 py-2 text-xs transition-colors ${
                   isActive
                     ? "bg-[var(--bg-elevated)] text-[var(--accent-warm)] font-medium"
@@ -134,7 +142,7 @@ export default function LanguageSwitcher({
               >
                 <div className="flex items-center gap-2">
                   <span className="font-mono text-[10px] uppercase px-1 py-0.5 rounded-xs bg-[var(--bg-primary)] border border-[var(--border-subtle)]">
-                    {loc}
+                    {shortCode}
                   </span>
                   <span>{label}</span>
                 </div>

@@ -4,6 +4,7 @@ import { getDictionary } from "@/i18n/getDictionary";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import LangSetter from "@/components/LangSetter";
+import LanguageSuggestion from "@/components/LanguageSuggestion";
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -37,6 +38,7 @@ export default async function LocaleLayout({
         {children}
       </main>
       <SiteFooter locale={typedLocale} dictionary={dictionary} />
+      <LanguageSuggestion currentLocale={typedLocale} />
     </>
   );
 }

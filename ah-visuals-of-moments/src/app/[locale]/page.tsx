@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { isValidLocale, Locale } from "@/i18n/config";
+import { isValidLocale, Locale, LOCALES_CONFIG } from "@/i18n/config";
 import { getDictionary } from "@/i18n/getDictionary";
 import { getPublishedMoments } from "@/data/moments";
-import { getLocalizedUrl } from "@/utils/url";
+import { getLocalizedUrl, getAlternateLanguages } from "@/utils/url";
 import { SITE_URL, ROBOTS_METADATA } from "@/config/site";
 import MomentGrid from "@/components/MomentGrid";
 
@@ -20,23 +20,23 @@ export async function generateMetadata({
   const { locale } = await params;
   if (!isValidLocale(locale)) return {};
 
-  const dict = getDictionary(locale as Locale);
+  const typedLocale = locale as Locale;
+  const dict = getDictionary(typedLocale);
+  const ogLocale = LOCALES_CONFIG[typedLocale]?.ogLocale || "fr_FR";
 
   return {
     title: dict.hero.title,
     description: dict.hero.description,
     robots: ROBOTS_METADATA,
     alternates: {
-      canonical: `${SITE_URL}/${locale}`,
-      languages: {
-        en: `${SITE_URL}/en`,
-        ru: `${SITE_URL}/ru`,
-      },
+      canonical: `${SITE_URL}/${typedLocale}`,
+      languages: getAlternateLanguages(""),
     },
     openGraph: {
       title: dict.hero.title,
       description: dict.hero.description,
-      url: `${SITE_URL}/${locale}`,
+      url: `${SITE_URL}/${typedLocale}`,
+      locale: ogLocale,
       type: "website",
     },
   };

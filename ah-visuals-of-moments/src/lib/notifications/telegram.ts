@@ -22,9 +22,14 @@ export async function sendTelegramOrderNotification(
   payload: TelegramOrderNotificationPayload
 ): Promise<{ sent: boolean; reason?: string; error?: string }> {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+  const rawChatId = process.env.TELEGRAM_CHAT_ID;
 
-  if (!botToken || !chatId) {
+  const chatIds = (rawChatId || "")
+    .split(",")
+    .map((id) => id.trim())
+    .filter(Boolean);
+
+  if (!botToken || chatIds.length === 0) {
     if (process.env.NODE_ENV !== "production") {
       console.log("[Telegram] Уведомление пропущено: TELEGRAM_BOT_TOKEN или TELEGRAM_CHAT_ID не настроены в ENV");
     }
@@ -60,25 +65,48 @@ export async function sendTelegramOrderNotification(
 
   try {
     const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text,
-        parse_mode: "MarkdownV2",
-      }),
+    const sendPromises = chatIds.map(async (chatId) => {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text,
+          parse_mode: "MarkdownV2",
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "");
+        throw new Error(`[Chat ${chatId}] HTTP ${response.status}: ${errorText}`);
+      }
     });
 
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => "");
-      console.error(`[Telegram] Ошибка отправки уведомления (HTTP ${response.status}): ${errorText}`);
-      return { sent: false, error: `HTTP ${response.status}: ${errorText}` };
+    const results = await Promise.allSettled(sendPromises);
+
+    const errors: string[] = [];
+    let successCount = 0;
+
+    for (const result of results) {
+      if (result.status === "fulfilled") {
+        successCount++;
+      } else {
+        const msg = result.reason instanceof Error ? result.reason.message : String(result.reason);
+        errors.push(msg);
+        console.error(`[Telegram] Ошибка отправки уведомления: ${msg}`);
+      }
     }
 
-    return { sent: true };
+    if (successCount === 0) {
+      return { sent: false, error: errors.join(" | ") };
+    }
+
+    return {
+      sent: true,
+      error: errors.length > 0 ? errors.join(" | ") : undefined,
+    };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("[Telegram] Сетевой сбой при отправке уведомления:", msg);
